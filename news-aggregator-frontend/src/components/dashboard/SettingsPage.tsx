@@ -42,13 +42,13 @@ export default function SettingsPage() {
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-500 to-slate-700 flex items-center justify-center">
+        <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-deep-orange-600 flex items-center justify-center">
             <Settings className="w-5 h-5 text-white" />
           </div>
           Settings
         </h2>
-        <p className="text-sm text-slate-400 mt-1">
+        <p className="text-sm text-gray-500 mt-1">
           Configure your aggregator preferences and security settings
         </p>
       </motion.div>
@@ -60,21 +60,21 @@ export default function SettingsPage() {
         transition={{ delay: 0.1 }}
         className="glass-card rounded-2xl p-6"
       >
-        <h3 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
-          <Bell className="w-4 h-4 text-amber-400" />
+        <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <Bell className="w-4 h-4 text-orange-500" />
           Notifications
         </h3>
         <div className="space-y-4">
           {notifications.map((notif) => (
             <div key={notif.id} className="flex items-center justify-between py-2">
               <div>
-                <p className="text-sm font-medium text-white">{notif.label}</p>
-                <p className="text-xs text-slate-400">{notif.description}</p>
+                <p className="text-sm font-medium text-gray-900">{notif.label}</p>
+                <p className="text-xs text-gray-500">{notif.description}</p>
               </div>
               <button
                 onClick={() => toggleNotification(notif.id)}
                 className={`relative w-10 h-5 rounded-full transition-all ${
-                  notif.enabled ? 'bg-blue-500' : 'bg-slate-700'
+                  notif.enabled ? 'bg-orange-500' : 'bg-gray-300'
                 }`}
               >
                 <motion.div
@@ -95,13 +95,13 @@ export default function SettingsPage() {
         transition={{ delay: 0.2 }}
         className="glass-card rounded-2xl p-6"
       >
-        <h3 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
-          <RefreshCw className="w-4 h-4 text-blue-400" />
+        <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <RefreshCw className="w-4 h-4 text-orange-600" />
           Data Refresh Settings
         </h3>
         <div>
-          <label className="text-sm text-slate-300 mb-2 block">
-            Refresh Interval: <span className="text-blue-400 font-medium">{refreshInterval} minutes</span>
+          <label className="text-sm text-gray-600 mb-2 block">
+            Refresh Interval: <span className="text-orange-600 font-medium">{refreshInterval} minutes</span>
           </label>
           <input
             type="range"
@@ -109,9 +109,9 @@ export default function SettingsPage() {
             max={30}
             value={refreshInterval}
             onChange={(e) => setRefreshInterval(Number(e.target.value))}
-            className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+            className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
           />
-          <div className="flex justify-between text-xs text-slate-600 mt-1">
+          <div className="flex justify-between text-xs text-gray-400 mt-1">
             <span>1 min</span>
             <span>15 min</span>
             <span>30 min</span>
@@ -126,20 +126,20 @@ export default function SettingsPage() {
         transition={{ delay: 0.3 }}
         className="glass-card rounded-2xl p-6"
       >
-        <h3 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
-          <Shield className="w-4 h-4 text-emerald-400" />
+        <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <Shield className="w-4 h-4 text-orange-600" />
           Security & Scraping
         </h3>
         <div className="space-y-4">
           <div className="flex items-center justify-between py-2">
             <div>
-              <p className="text-sm font-medium text-white">Proxy Rotation</p>
-              <p className="text-xs text-slate-400">Enable residential proxy rotation for social media scraping</p>
+              <p className="text-sm font-medium text-gray-900">Proxy Rotation</p>
+              <p className="text-xs text-gray-500">Enable residential proxy rotation for social media scraping</p>
             </div>
             <button
               onClick={() => setProxyEnabled(!proxyEnabled)}
               className={`relative w-10 h-5 rounded-full transition-all ${
-                proxyEnabled ? 'bg-emerald-500' : 'bg-slate-700'
+                proxyEnabled ? 'bg-orange-500' : 'bg-gray-300'
               }`}
             >
               <motion.div
@@ -151,13 +151,13 @@ export default function SettingsPage() {
           </div>
           <div className="flex items-center justify-between py-2">
             <div>
-              <p className="text-sm font-medium text-white">Rate Limiting</p>
-              <p className="text-xs text-slate-400">Throttle API requests to avoid platform bans</p>
+              <p className="text-sm font-medium text-gray-900">Rate Limiting</p>
+              <p className="text-xs text-gray-500">Throttle API requests to avoid platform bans</p>
             </div>
             <button
               onClick={() => setRateLimitEnabled(!rateLimitEnabled)}
               className={`relative w-10 h-5 rounded-full transition-all ${
-                rateLimitEnabled ? 'bg-emerald-500' : 'bg-slate-700'
+                rateLimitEnabled ? 'bg-orange-500' : 'bg-gray-300'
               }`}
             >
               <motion.div
@@ -177,8 +177,8 @@ export default function SettingsPage() {
         transition={{ delay: 0.4 }}
         className="glass-card rounded-2xl p-6"
       >
-        <h3 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
-          <Key className="w-4 h-4 text-purple-400" />
+        <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <Key className="w-4 h-4 text-orange-600" />
           API Keys
         </h3>
         <div className="space-y-3">
@@ -188,10 +188,10 @@ export default function SettingsPage() {
             { name: 'X (Twitter) API', status: 'not configured', icon: Key },
             { name: 'TikTok Trends API', status: 'not configured', icon: Key },
           ].map((api) => (
-            <div key={api.name} className="flex items-center justify-between p-3 rounded-xl bg-slate-800/30 border border-slate-700/30">
+            <div key={api.name} className="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-200">
               <div className="flex items-center gap-3">
-                <api.icon className="w-4 h-4 text-slate-400" />
-                <span className="text-sm text-white">{api.name}</span>
+                <api.icon className="w-4 h-4 text-gray-400" />
+                <span className="text-sm text-gray-900">{api.name}</span>
               </div>
               <span
                 className={`text-xs font-medium px-2 py-1 rounded-md ${
@@ -211,7 +211,7 @@ export default function SettingsPage() {
       <div className="flex items-center gap-3 pt-2">
         <motion.button
           className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-white"
-          style={{ background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)' }}
+          style={{ background: 'linear-gradient(135deg, #FF5722, #E64A19)' }}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
@@ -219,7 +219,7 @@ export default function SettingsPage() {
           Save Settings
         </motion.button>
         <motion.button
-          className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-medium text-slate-300 bg-slate-800/50 border border-slate-700/50 hover:bg-slate-700/50 transition-all"
+          className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-medium text-gray-600 bg-gray-50 border border-gray-200 hover:bg-gray-100 transition-all"
           whileTap={{ scale: 0.98 }}
         >
           <RotateCcw className="w-4 h-4" />

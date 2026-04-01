@@ -38,13 +38,13 @@ export default function GeographicPage() {
         className="flex items-center justify-between"
       >
         <div>
-          <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
+          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-deep-orange-600 flex items-center justify-center">
               <Globe className="w-5 h-5 text-white" />
             </div>
             Geographic Trends
           </h2>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-gray-500 mt-1">
             Drill down into localized trends by Country, State, or County
           </p>
         </div>
@@ -67,28 +67,28 @@ export default function GeographicPage() {
               animate={{ opacity: 1, y: 0 }}
               className="glass-card rounded-2xl p-5 space-y-3"
             >
-              <h4 className="text-sm font-semibold text-white flex items-center gap-2">
-                <BarChart3 className="w-4 h-4 text-blue-400" />
+              <h4 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-orange-600" />
                 Region Insights
               </h4>
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-400 flex items-center gap-1.5">
+                  <span className="text-gray-500 flex items-center gap-1.5">
                     <TrendingUp className="w-3.5 h-3.5" />
                     Active Trends
                   </span>
-                  <span className="text-white font-medium">{regionStats.totalTrends}</span>
+                  <span className="text-gray-900 font-medium">{regionStats.totalTrends}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-400 flex items-center gap-1.5">
+                  <span className="text-gray-500 flex items-center gap-1.5">
                     <MapPin className="w-3.5 h-3.5" />
                     Avg Score
                   </span>
-                  <span className="text-emerald-400 font-medium">{regionStats.avgScore}</span>
+                  <span className="text-orange-600 font-medium">{regionStats.avgScore}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-slate-400">Total Engagement</span>
-                  <span className="text-blue-400 font-medium">
+                  <span className="text-gray-500">Total Engagement</span>
+                  <span className="text-orange-600 font-medium">
                     {regionStats.totalEngagement >= 1000000
                       ? (regionStats.totalEngagement / 1000000).toFixed(1) + 'M'
                       : regionStats.totalEngagement >= 1000
@@ -115,9 +115,9 @@ export default function GeographicPage() {
               animate={{ opacity: 1 }}
               className="glass-card rounded-2xl p-12 flex flex-col items-center justify-center text-center"
             >
-              <MapPin className="w-12 h-12 text-slate-600 mb-4" />
-              <h3 className="text-lg font-semibold text-slate-400 mb-2">No trends found</h3>
-              <p className="text-sm text-slate-500">
+              <MapPin className="w-12 h-12 text-gray-300 mb-4" />
+              <h3 className="text-lg font-semibold text-gray-400 mb-2">No trends found</h3>
+              <p className="text-sm text-gray-500">
                 No trending topics found for this region. Try selecting a different location.
               </p>
             </motion.div>

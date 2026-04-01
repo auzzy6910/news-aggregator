@@ -21,8 +21,8 @@ export default function TrendChart() {
     >
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h3 className="text-lg font-semibold text-white">Cross-Platform Trend Velocity</h3>
-          <p className="text-sm text-slate-400 mt-1">Engagement rate across platforms (last 24h)</p>
+          <h3 className="text-lg font-semibold text-gray-900">Cross-Platform Trend Velocity</h3>
+          <p className="text-sm text-gray-500 mt-1">Engagement rate across platforms (last 24h)</p>
         </div>
         <div className="flex gap-2">
           {['24h', '7d', '30d'].map((period) => (
@@ -30,8 +30,8 @@ export default function TrendChart() {
               key={period}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                 period === '24h'
-                  ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                  ? 'bg-orange-500/10 text-orange-600 border border-orange-500/30'
+                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
               }`}
             >
               {period}
@@ -82,13 +82,13 @@ export default function TrendChart() {
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: '#1a1f2e',
-                border: '1px solid #2a3148',
+                backgroundColor: '#ffffff',
+                border: '1px solid #e2e8f0',
                 borderRadius: '12px',
                 fontSize: '12px',
-                color: '#f1f5f9',
+                color: '#1e293b',
               }}
-              labelStyle={{ color: '#94a3b8' }}
+              labelStyle={{ color: '#64748b' }}
             />
             <Legend
               wrapperStyle={{ fontSize: '11px', paddingTop: '12px' }}

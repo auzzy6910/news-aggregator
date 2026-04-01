@@ -43,13 +43,13 @@ export default function ContentPage() {
         className="flex items-center justify-between"
       >
         <div>
-          <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
+          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-deep-orange-600 flex items-center justify-center">
               <PenTool className="w-5 h-5 text-white" />
             </div>
             AI Content Studio
           </h2>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-gray-500 mt-1">
             Recreate trending content with AI-powered brand voice customization
           </p>
         </div>
@@ -63,8 +63,8 @@ export default function ContentPage() {
           transition={{ delay: 0.1 }}
           className="glass-card rounded-2xl p-5"
         >
-          <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-            <MessageSquare className="w-4 h-4 text-blue-400" />
+          <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <MessageSquare className="w-4 h-4 text-orange-600" />
             Select Source Content
           </h3>
           <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
@@ -77,17 +77,17 @@ export default function ContentPage() {
                 }}
                 className={`w-full text-left p-3 rounded-xl transition-all ${
                   selectedNews.id === news.id
-                    ? 'bg-blue-500/10 border border-blue-500/30'
-                    : 'hover:bg-slate-800/50 border border-transparent'
+                    ? 'bg-orange-500/10 border border-orange-500/30'
+                    : 'hover:bg-gray-50 border border-transparent'
                 }`}
               >
                 <div className="flex items-center gap-2 mb-1.5">
                   <PlatformIcon platform={news.platform} size="sm" />
-                  <span className="text-xs text-slate-400 capitalize">
+                  <span className="text-xs text-gray-400 capitalize">
                     {news.platform === 'twitter' ? 'X' : news.platform}
                   </span>
                 </div>
-                <p className="text-sm text-white line-clamp-2 leading-snug">{news.title}</p>
+                <p className="text-sm text-gray-900 line-clamp-2 leading-snug">{news.title}</p>
               </button>
             ))}
           </div>
@@ -100,14 +100,14 @@ export default function ContentPage() {
           transition={{ delay: 0.2 }}
           className="glass-card rounded-2xl p-5 space-y-5"
         >
-          <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-            <Settings2 className="w-4 h-4 text-purple-400" />
+          <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+            <Settings2 className="w-4 h-4 text-orange-600" />
             Content Configuration
           </h3>
 
           {/* Tone selector */}
           <div>
-            <label className="text-xs text-slate-400 mb-2 flex items-center gap-1.5">
+            <label className="text-xs text-gray-500 mb-2 flex items-center gap-1.5">
               <Type className="w-3 h-3" />
               Brand Voice / Tone
             </label>
@@ -118,8 +118,8 @@ export default function ContentPage() {
                   onClick={() => setSelectedTone(tone)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                     selectedTone === tone
-                      ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
-                      : 'bg-slate-800/40 text-slate-400 border border-slate-700/30 hover:bg-slate-700/40'
+                      ? 'bg-orange-500/10 text-orange-600 border border-orange-500/30'
+                      : 'bg-gray-50 text-gray-500 border border-gray-200 hover:bg-gray-100'
                   }`}
                 >
                   {tone}
@@ -130,7 +130,7 @@ export default function ContentPage() {
 
           {/* Length selector */}
           <div>
-            <label className="text-xs text-slate-400 mb-2 flex items-center gap-1.5">
+            <label className="text-xs text-gray-500 mb-2 flex items-center gap-1.5">
               <MessageSquare className="w-3 h-3" />
               Content Length
             </label>
@@ -141,8 +141,8 @@ export default function ContentPage() {
                   onClick={() => setSelectedLength(length)}
                   className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-all ${
                     selectedLength === length
-                      ? 'bg-blue-500/10 text-blue-400 border border-blue-500/30'
-                      : 'bg-slate-800/40 text-slate-400 border border-slate-700/30 hover:bg-slate-700/40'
+                      ? 'bg-orange-500/10 text-orange-600 border border-orange-500/30'
+                      : 'bg-gray-50 text-gray-500 border border-gray-200 hover:bg-gray-100'
                   }`}
                 >
                   {length}
@@ -153,7 +153,7 @@ export default function ContentPage() {
 
           {/* Hashtag count */}
           <div>
-            <label className="text-xs text-slate-400 mb-2 flex items-center gap-1.5">
+            <label className="text-xs text-gray-500 mb-2 flex items-center gap-1.5">
               <Hash className="w-3 h-3" />
               Hashtag Count: {hashtagCount}
             </label>
@@ -163,9 +163,9 @@ export default function ContentPage() {
               max={15}
               value={hashtagCount}
               onChange={(e) => setHashtagCount(Number(e.target.value))}
-              className="w-full h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+              className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
             />
-            <div className="flex justify-between text-xs text-slate-600 mt-1">
+            <div className="flex justify-between text-xs text-gray-400 mt-1">
               <span>1</span>
               <span>15</span>
             </div>
@@ -176,7 +176,7 @@ export default function ContentPage() {
             onClick={handleGenerate}
             disabled={isGenerating}
             className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-white transition-all disabled:opacity-50"
-            style={{ background: 'linear-gradient(135deg, #8b5cf6, #ec4899)' }}
+            style={{ background: 'linear-gradient(135deg, #FF5722, #E64A19)' }}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
@@ -201,32 +201,32 @@ export default function ContentPage() {
           transition={{ delay: 0.3 }}
           className="glass-card rounded-2xl p-5 space-y-4"
         >
-          <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-amber-400" />
+          <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-orange-500" />
             AI-Generated Draft
           </h3>
 
           {/* Source preview */}
-          <div className="bg-slate-800/50 rounded-xl p-3 border border-slate-700/30">
-            <p className="text-xs text-slate-500 mb-1.5">Original Source:</p>
-            <p className="text-sm text-slate-300 line-clamp-3">{selectedNews.summary}</p>
+          <div className="bg-gray-50 rounded-xl p-3 border border-gray-200">
+            <p className="text-xs text-gray-400 mb-1.5">Original Source:</p>
+            <p className="text-sm text-gray-600 line-clamp-3">{selectedNews.summary}</p>
           </div>
 
           {/* Generated content */}
-          <div className="bg-purple-500/5 border border-purple-500/20 rounded-xl p-4 min-h-32 relative">
+          <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 min-h-32 relative">
             {isGenerating ? (
               <div className="flex flex-col items-center justify-center h-32 gap-3">
-                <div className="w-8 h-8 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
-                <p className="text-xs text-purple-400">AI is crafting your content...</p>
+                <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+                <p className="text-xs text-orange-600">AI is crafting your content...</p>
               </div>
             ) : (
               <>
-                <p className="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">
+                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">
                   {generatedContent}
                 </p>
                 <div className="flex flex-wrap gap-1.5 mt-3">
                   {selectedNews.hashtags.map((tag) => (
-                    <span key={tag} className="text-xs text-purple-400/80 bg-purple-500/10 px-2 py-0.5 rounded-md">
+                    <span key={tag} className="text-xs text-orange-600/80 bg-orange-100 px-2 py-0.5 rounded-md">
                       {tag}
                     </span>
                   ))}
@@ -239,7 +239,7 @@ export default function ContentPage() {
           <div className="flex items-center gap-2">
             <motion.button
               className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium text-white transition-all"
-              style={{ background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)' }}
+              style={{ background: 'linear-gradient(135deg, #FF5722, #E64A19)' }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
@@ -247,7 +247,7 @@ export default function ContentPage() {
               Post Now
             </motion.button>
             <motion.button
-              className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-300 bg-slate-800/50 border border-slate-700/50 hover:bg-slate-700/50 transition-all"
+              className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 bg-gray-50 border border-gray-200 hover:bg-gray-100 transition-all"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >

@@ -8,7 +8,7 @@ const stats = [
     change: '+12.5%',
     positive: true,
     icon: TrendingUp,
-    gradient: 'from-blue-500 to-cyan-400',
+    gradient: 'from-orange-500 to-orange-400',
   },
   {
     label: 'Total Impressions',
@@ -16,7 +16,7 @@ const stats = [
     change: '+8.3%',
     positive: true,
     icon: Eye,
-    gradient: 'from-purple-500 to-pink-400',
+    gradient: 'from-deep-orange-600 to-orange-400',
   },
   {
     label: 'Auto-Posted',
@@ -24,7 +24,7 @@ const stats = [
     change: '+23.1%',
     positive: true,
     icon: Share2,
-    gradient: 'from-emerald-500 to-teal-400',
+    gradient: 'from-orange-400 to-amber-400',
   },
   {
     label: 'Velocity Score',
@@ -32,7 +32,7 @@ const stats = [
     change: '+5.2%',
     positive: true,
     icon: Zap,
-    gradient: 'from-orange-500 to-amber-400',
+    gradient: 'from-deep-orange-700 to-orange-500',
   },
 ];
 
@@ -63,8 +63,8 @@ export default function StatsBar() {
               {stat.change}
             </span>
           </div>
-          <p className="text-2xl font-bold text-white mb-1">{stat.value}</p>
-          <p className="text-xs text-slate-400">{stat.label}</p>
+          <p className="text-2xl font-bold text-gray-900 mb-1">{stat.value}</p>
+          <p className="text-xs text-gray-500">{stat.label}</p>
         </motion.div>
       ))}
     </div>

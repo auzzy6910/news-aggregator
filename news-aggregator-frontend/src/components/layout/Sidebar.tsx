@@ -33,14 +33,14 @@ export default function Sidebar({ activeTab, onTabChange, collapsed, onToggleCol
       initial={false}
       animate={{ width: collapsed ? 72 : 240 }}
       transition={{ duration: 0.3, ease: 'easeInOut' }}
-      className="fixed left-0 top-0 h-screen z-50 flex flex-col border-r border-slate-800/60"
-      style={{ background: 'linear-gradient(180deg, #0f1629 0%, #0a0e1a 100%)' }}
+      className="fixed left-0 top-0 h-screen z-50 flex flex-col border-r border-gray-200"
+      style={{ background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)' }}
     >
       {/* Logo */}
-      <div className="flex items-center gap-3 px-4 py-5 border-b border-slate-800/60">
+      <div className="flex items-center gap-3 px-4 py-5 border-b border-gray-200">
         <motion.div
           className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-          style={{ background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)' }}
+          style={{ background: 'linear-gradient(135deg, #FF5722, #E64A19)' }}
           whileHover={{ scale: 1.05, rotate: 5 }}
           whileTap={{ scale: 0.95 }}
         >
@@ -54,7 +54,7 @@ export default function Sidebar({ activeTab, onTabChange, collapsed, onToggleCol
             transition={{ duration: 0.2 }}
           >
             <h1 className="text-lg font-bold gradient-text whitespace-nowrap">TrendPulse</h1>
-            <p className="text-xs text-slate-500 whitespace-nowrap">Real-time Aggregator</p>
+            <p className="text-xs text-gray-400 whitespace-nowrap">Real-time Aggregator</p>
           </motion.div>
         )}
       </div>
@@ -69,8 +69,8 @@ export default function Sidebar({ activeTab, onTabChange, collapsed, onToggleCol
               onClick={() => onTabChange(item.id)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative ${
                 isActive
-                  ? 'text-white'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+                  ? 'text-gray-900'
+                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
               }`}
               whileHover={{ x: 2 }}
               whileTap={{ scale: 0.98 }}
@@ -79,7 +79,7 @@ export default function Sidebar({ activeTab, onTabChange, collapsed, onToggleCol
                 <motion.div
                   layoutId="activeTab"
                   className="absolute inset-0 rounded-xl"
-                  style={{ background: 'linear-gradient(135deg, rgba(59,130,246,0.2), rgba(139,92,246,0.2))' }}
+                  style={{ background: 'linear-gradient(135deg, rgba(255,87,34,0.1), rgba(230,74,25,0.1))' }}
                   transition={{ type: 'spring', duration: 0.5 }}
                 />
               )}
@@ -87,11 +87,11 @@ export default function Sidebar({ activeTab, onTabChange, collapsed, onToggleCol
                 <motion.div
                   layoutId="activeIndicator"
                   className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full"
-                  style={{ background: 'linear-gradient(180deg, #3b82f6, #8b5cf6)' }}
+                  style={{ background: 'linear-gradient(180deg, #FF5722, #E64A19)' }}
                   transition={{ type: 'spring', duration: 0.5 }}
                 />
               )}
-              <item.icon className={`w-5 h-5 flex-shrink-0 relative z-10 ${isActive ? 'text-blue-400' : ''}`} />
+              <item.icon className={`w-5 h-5 flex-shrink-0 relative z-10 ${isActive ? 'text-orange-600' : ''}`} />
               {!collapsed && (
                 <motion.span
                   initial={{ opacity: 0 }}
@@ -107,10 +107,10 @@ export default function Sidebar({ activeTab, onTabChange, collapsed, onToggleCol
       </nav>
 
       {/* Collapse toggle */}
-      <div className="px-3 py-4 border-t border-slate-800/60">
+      <div className="px-3 py-4 border-t border-gray-200">
         <button
           onClick={onToggleCollapse}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 transition-all"
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-all"
         >
           {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
           {!collapsed && <span className="text-xs">Collapse</span>}
