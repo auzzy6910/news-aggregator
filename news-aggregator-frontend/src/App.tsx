@@ -53,23 +53,24 @@ function App() {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="relative overflow-hidden rounded-2xl p-6"
+              className="relative overflow-hidden rounded p-6 border"
               style={{
-                background: 'linear-gradient(135deg, rgba(59,130,246,0.15), rgba(139,92,246,0.15), rgba(236,72,153,0.1))',
+                background: 'linear-gradient(135deg, #fff7ed, #ffedd5)',
+                borderColor: '#fdba74',
               }}
             >
               <div className="absolute inset-0 shimmer" />
               <div className="relative z-10">
-                <h2 className="text-2xl font-bold text-white mb-1">
+                <h2 className="text-2xl font-bold text-gray-900 mb-1">
                   Welcome to <span className="gradient-text">TrendPulse</span>
                 </h2>
-                <p className="text-sm text-slate-300">
+                <p className="text-sm text-gray-600">
                   Real-time trend aggregation across X, TikTok, Instagram, Facebook, Reddit & the web.
                   {' '}{filteredNews.length} trending topics found.
                 </p>
               </div>
-              <div className="absolute top-2 right-8 w-20 h-20 rounded-full bg-blue-500/10 blur-xl" />
-              <div className="absolute bottom-0 right-24 w-16 h-16 rounded-full bg-purple-500/10 blur-xl" />
+              <div className="absolute top-2 right-8 w-20 h-20 rounded-full bg-orange-300/20 blur-xl" />
+              <div className="absolute bottom-0 right-24 w-16 h-16 rounded-full bg-orange-400/15 blur-xl" />
             </motion.div>
 
             {/* Stats */}
@@ -81,9 +82,9 @@ function App() {
             {/* News Grid */}
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">
+                <h3 className="text-lg font-semibold text-gray-900">
                   Trending Now
-                  <span className="text-sm text-slate-400 font-normal ml-2">
+                  <span className="text-sm text-gray-500 font-normal ml-2">
                     ({filteredNews.length} results)
                   </span>
                 </h3>
@@ -91,10 +92,10 @@ function App() {
                   {['Hot', 'New', 'Rising'].map((filter) => (
                     <button
                       key={filter}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      className={`px-3 py-1.5 rounded text-xs font-medium transition-all ${
                         filter === 'Hot'
-                          ? 'bg-orange-500/15 text-orange-400 border border-orange-500/25'
-                          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                          ? 'bg-orange-600 text-white'
+                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 border border-gray-200'
                       }`}
                     >
                       {filter}
@@ -121,10 +122,10 @@ function App() {
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="glass-card rounded-2xl p-12 text-center"
+                  className="glass-card rounded p-12 text-center"
                 >
-                  <p className="text-lg text-slate-400 mb-2">No trends found</p>
-                  <p className="text-sm text-slate-500">Try adjusting your search or platform filters</p>
+                  <p className="text-lg text-gray-500 mb-2">No trends found</p>
+                  <p className="text-sm text-gray-400">Try adjusting your search or platform filters</p>
                 </motion.div>
               )}
             </div>
@@ -134,7 +135,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0e1a] flex">
+    <div className="min-h-screen bg-white flex">
       <Sidebar
         activeTab={activeTab}
         onTabChange={setActiveTab}

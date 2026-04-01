@@ -17,21 +17,21 @@ export default function TrendChart() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3, duration: 0.5 }}
-      className="glass-card rounded-2xl p-6"
+      className="glass-card rounded p-6"
     >
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h3 className="text-lg font-semibold text-white">Cross-Platform Trend Velocity</h3>
-          <p className="text-sm text-slate-400 mt-1">Engagement rate across platforms (last 24h)</p>
+          <h3 className="text-lg font-semibold text-gray-900">Cross-Platform Trend Velocity</h3>
+          <p className="text-sm text-gray-500 mt-1">Engagement rate across platforms (last 24h)</p>
         </div>
         <div className="flex gap-2">
           {['24h', '7d', '30d'].map((period) => (
             <button
               key={period}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              className={`px-3 py-1.5 rounded text-xs font-medium transition-all ${
                 period === '24h'
-                  ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                  ? 'bg-orange-600 text-white'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 border border-gray-200'
               }`}
             >
               {period}
@@ -65,7 +65,7 @@ export default function TrendChart() {
                 <stop offset="95%" stopColor={platformColors.reddit} stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(42, 49, 72, 0.4)" />
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(229, 231, 235, 0.8)" />
             <XAxis
               dataKey="time"
               stroke="#64748b"
@@ -82,13 +82,14 @@ export default function TrendChart() {
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: '#1a1f2e',
-                border: '1px solid #2a3148',
-                borderRadius: '12px',
+                backgroundColor: '#ffffff',
+                border: '1px solid #e5e7eb',
+                borderRadius: '4px',
                 fontSize: '12px',
-                color: '#f1f5f9',
+                color: '#111827',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
               }}
-              labelStyle={{ color: '#94a3b8' }}
+              labelStyle={{ color: '#6b7280' }}
             />
             <Legend
               wrapperStyle={{ fontSize: '11px', paddingTop: '12px' }}
