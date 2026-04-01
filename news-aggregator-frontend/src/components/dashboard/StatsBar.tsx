@@ -1,42 +1,65 @@
+import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp, Eye, Share2, Zap } from 'lucide-react';
+import { useQuery } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
 
-const stats = [
-  {
-    label: 'Trending Now',
-    value: '2,847',
-    change: '+12.5%',
-    positive: true,
-    icon: TrendingUp,
-    gradient: 'from-orange-500 to-orange-400',
-  },
-  {
-    label: 'Total Impressions',
-    value: '14.2M',
-    change: '+8.3%',
-    positive: true,
-    icon: Eye,
-    gradient: 'from-deep-orange-600 to-orange-400',
-  },
-  {
-    label: 'Auto-Posted',
-    value: '156',
-    change: '+23.1%',
-    positive: true,
-    icon: Share2,
-    gradient: 'from-orange-400 to-amber-400',
-  },
-  {
-    label: 'Velocity Score',
-    value: '94.7',
-    change: '+5.2%',
-    positive: true,
-    icon: Zap,
-    gradient: 'from-deep-orange-700 to-orange-500',
-  },
-];
+function formatStatNumber(num: number): string {
+  if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+  if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+  return num.toLocaleString();
+}
 
 export default function StatsBar() {
+  const newsItems = useQuery(api.news.list, {});
+
+  const stats = useMemo(() => {
+    const items = newsItems ?? [];
+    const trendingCount = items.filter((n) => n.status === 'trending').length;
+    const totalImpressions = items.reduce(
+      (acc, n) => acc + n.metricsLikes + n.metricsShares + n.metricsComments,
+      0
+    );
+    const autoPosted = items.filter((n) => n.isAutoPostEnabled).length;
+    const avgVelocity = items.length
+      ? items.reduce((acc, n) => acc + n.metricsVelocity, 0) / items.length
+      : 0;
+
+    return [
+      {
+        label: 'Trending Now',
+        value: formatStatNumber(trendingCount),
+        change: '+12.5%',
+        positive: true,
+        icon: TrendingUp,
+        gradient: 'from-orange-500 to-orange-400',
+      },
+      {
+        label: 'Total Impressions',
+        value: formatStatNumber(totalImpressions),
+        change: '+8.3%',
+        positive: true,
+        icon: Eye,
+        gradient: 'from-deep-orange-600 to-orange-400',
+      },
+      {
+        label: 'Auto-Posted',
+        value: formatStatNumber(autoPosted),
+        change: '+23.1%',
+        positive: true,
+        icon: Share2,
+        gradient: 'from-orange-400 to-amber-400',
+      },
+      {
+        label: 'Velocity Score',
+        value: (avgVelocity / 1000).toFixed(1),
+        change: '+5.2%',
+        positive: true,
+        icon: Zap,
+        gradient: 'from-deep-orange-700 to-orange-500',
+      },
+    ];
+  }, [newsItems]);
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {stats.map((stat, index) => (
