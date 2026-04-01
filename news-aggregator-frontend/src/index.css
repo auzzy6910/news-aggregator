@@ -20,6 +20,78 @@
     --accent-red: #ef4444;
   }
 
+  .light {
+    --bg-primary: #f8fafc;
+    --bg-secondary: #f1f5f9;
+    --bg-card: #ffffff;
+    --bg-card-hover: #f1f5f9;
+    --border-color: #e2e8f0;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+  }
+
+  .light body,
+  .light {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+  }
+
+  .light .glass-card {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(226, 232, 240, 0.8);
+  }
+
+  .light .glass-card-hover:hover {
+    background: rgba(241, 245, 249, 0.95);
+    border-color: rgba(59, 130, 246, 0.3);
+  }
+
+  .light header {
+    background: rgba(248, 250, 252, 0.9) !important;
+  }
+
+  .light aside {
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+  }
+
+  .light .text-white {
+    color: var(--text-primary);
+  }
+
+  .light .text-slate-300,
+  .light .text-slate-400 {
+    color: var(--text-secondary);
+  }
+
+  .light .text-slate-500 {
+    color: #64748b;
+  }
+
+  .light .bg-slate-800\/50,
+  .light .bg-slate-800\/40,
+  .light .bg-slate-800\/30 {
+    background-color: rgba(241, 245, 249, 0.8);
+  }
+
+  .light .border-slate-700\/50,
+  .light .border-slate-700\/30,
+  .light .border-slate-800\/60,
+  .light .border-slate-800\/40 {
+    border-color: rgba(226, 232, 240, 0.8);
+  }
+
+  .light input,
+  .light textarea {
+    background-color: rgba(241, 245, 249, 0.8) !important;
+    border-color: rgba(226, 232, 240, 0.8) !important;
+    color: var(--text-primary) !important;
+  }
+
+  .light input::placeholder,
+  .light textarea::placeholder {
+    color: #94a3b8 !important;
+  }
+
   * {
     border-color: var(--border-color);
   }

@@ -14,9 +14,14 @@ import {
   Clock,
   Sparkles,
   TrendingUp,
+  Bookmark,
+  ThumbsUp,
+  ThumbsDown,
+  Minus,
 } from 'lucide-react';
 import { NewsItem } from '../../types';
 import PlatformIcon from '../layout/PlatformIcon';
+import { useBookmarks } from '../../contexts/BookmarkContext';
 
 interface NewsCardProps {
   item: NewsItem;
@@ -44,11 +49,21 @@ const statusConfig: Record<string, { label: string; bg: string; text: string; do
   posted: { label: 'Posted', bg: 'bg-blue-500/10', text: 'text-blue-400', dot: 'bg-blue-400' },
 };
 
+const sentimentConfig = {
+  positive: { icon: ThumbsUp, color: 'text-emerald-400', bg: 'bg-emerald-500/10', label: 'Positive' },
+  negative: { icon: ThumbsDown, color: 'text-red-400', bg: 'bg-red-500/10', label: 'Negative' },
+  neutral: { icon: Minus, color: 'text-slate-400', bg: 'bg-slate-500/10', label: 'Neutral' },
+};
+
 export default function NewsCard({ item, index }: NewsCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [showDraft, setShowDraft] = useState(false);
   const [imgError, setImgError] = useState(false);
+  const { toggleBookmark, isBookmarked } = useBookmarks();
+  const bookmarked = isBookmarked(item.id);
   const status = statusConfig[item.status];
+  const sentiment = item.sentiment ? sentimentConfig[item.sentiment] : null;
+  const SentimentIcon = sentiment?.icon;
 
   const trendScoreColor =
     item.trendScore >= 90
@@ -92,6 +107,12 @@ export default function NewsCard({ item, index }: NewsCardProps) {
             <span className={`w-1.5 h-1.5 rounded-full ${status.dot} animate-pulse`} />
             {status.label}
           </span>
+          {sentiment && SentimentIcon && (
+            <span className={`${sentiment.bg} ${sentiment.color} text-xs font-semibold px-2.5 py-1 rounded-lg flex items-center gap-1 backdrop-blur-sm`}>
+              <SentimentIcon className="w-3 h-3" />
+              {sentiment.label}
+            </span>
+          )}
         </div>
 
         {/* Trend score */}
@@ -161,6 +182,18 @@ export default function NewsCard({ item, index }: NewsCardProps) {
             <TrendingUp className="w-3.5 h-3.5" />
             {formatNumber(item.metrics.velocity)}/hr
           </span>
+        </div>
+
+        {/* Bookmark button */}
+        <div className="flex items-center justify-between mb-3">
+          <div />
+          <motion.button
+            onClick={() => toggleBookmark(item.id)}
+            className={`p-1.5 rounded-lg transition-all ${bookmarked ? 'text-amber-400 bg-amber-500/10' : 'text-slate-500 hover:text-amber-400 hover:bg-slate-800/50'}`}
+            whileTap={{ scale: 0.9 }}
+          >
+            <Bookmark className="w-4 h-4" fill={bookmarked ? 'currentColor' : 'none'} />
+          </motion.button>
         </div>
 
         {/* Hashtags */}

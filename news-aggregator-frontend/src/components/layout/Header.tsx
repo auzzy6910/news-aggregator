@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search,
@@ -6,9 +6,13 @@ import {
   RefreshCw,
   Filter,
   ChevronDown,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { Platform } from '../../types';
 import PlatformIcon from './PlatformIcon';
+import { useTheme } from '../../contexts/ThemeContext';
+import NotificationsPanel from '../features/NotificationsPanel';
 
 interface HeaderProps {
   onSearch: (query: string) => void;
@@ -22,6 +26,9 @@ export default function Header({ onSearch, onPlatformFilter, activePlatform }: H
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const { theme, toggleTheme } = useTheme();
+  const notifRef = useRef<HTMLDivElement>(null);
 
   const handleSearch = (value: string) => {
     setSearchQuery(value);
@@ -32,6 +39,17 @@ export default function Header({ onSearch, onPlatformFilter, activePlatform }: H
     setIsRefreshing(true);
     setTimeout(() => setIsRefreshing(false), 2000);
   };
+
+  // Close notifications on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setShowNotifications(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   return (
     <header className="sticky top-0 z-40 backdrop-blur-xl border-b border-slate-800/60" style={{ background: 'rgba(10, 14, 26, 0.85)' }}>
@@ -65,6 +83,16 @@ export default function Header({ onSearch, onPlatformFilter, activePlatform }: H
 
         {/* Actions */}
         <div className="flex items-center gap-3 ml-4">
+          {/* Theme toggle */}
+          <motion.button
+            onClick={toggleTheme}
+            className="p-2.5 rounded-xl bg-slate-800/50 border border-slate-700/50 text-slate-400 hover:text-slate-200 transition-all"
+            whileTap={{ scale: 0.95 }}
+            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+          >
+            {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </motion.button>
+
           <motion.button
             onClick={handleRefresh}
             className="p-2.5 rounded-xl bg-slate-800/50 border border-slate-700/50 text-slate-400 hover:text-slate-200 transition-all"
@@ -74,15 +102,22 @@ export default function Header({ onSearch, onPlatformFilter, activePlatform }: H
           >
             <RefreshCw className="w-4 h-4" />
           </motion.button>
-          <motion.button
-            className="relative p-2.5 rounded-xl bg-slate-800/50 border border-slate-700/50 text-slate-400 hover:text-slate-200 transition-all"
-            whileTap={{ scale: 0.95 }}
-          >
-            <Bell className="w-4 h-4" />
-            <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center font-bold">
-              3
-            </span>
-          </motion.button>
+
+          {/* Notifications */}
+          <div ref={notifRef} className="relative">
+            <motion.button
+              onClick={() => setShowNotifications(!showNotifications)}
+              className="relative p-2.5 rounded-xl bg-slate-800/50 border border-slate-700/50 text-slate-400 hover:text-slate-200 transition-all"
+              whileTap={{ scale: 0.95 }}
+            >
+              <Bell className="w-4 h-4" />
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 rounded-full text-white text-xs flex items-center justify-center font-bold">
+                3
+              </span>
+            </motion.button>
+            <NotificationsPanel isOpen={showNotifications} onClose={() => setShowNotifications(false)} />
+          </div>
+
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold cursor-pointer hover:opacity-90 transition-opacity">
             TP
           </div>
