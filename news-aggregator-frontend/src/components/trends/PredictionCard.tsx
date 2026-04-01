@@ -12,21 +12,21 @@ interface PredictionCardProps {
 export default function PredictionCard({ item, index }: PredictionCardProps) {
   const confidenceColor =
     item.confidence >= 85
-      ? 'text-emerald-400'
+      ? 'text-green-600'
       : item.confidence >= 70
-        ? 'text-blue-400'
+        ? 'text-orange-600'
         : item.confidence >= 50
-          ? 'text-amber-400'
-          : 'text-slate-400';
+          ? 'text-amber-600'
+          : 'text-gray-500';
 
   const confidenceBg =
     item.confidence >= 85
-      ? 'bg-emerald-500/10'
+      ? 'bg-green-50'
       : item.confidence >= 70
-        ? 'bg-blue-500/10'
+        ? 'bg-orange-50'
         : item.confidence >= 50
-          ? 'bg-amber-500/10'
-          : 'bg-slate-500/10';
+          ? 'bg-amber-50'
+          : 'bg-gray-100';
 
   const progressWidth = Math.min((item.currentScore / item.predictedPeak) * 100, 100);
 
@@ -35,7 +35,7 @@ export default function PredictionCard({ item, index }: PredictionCardProps) {
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.1, duration: 0.4 }}
-      className="glass-card glass-card-hover rounded-2xl p-5 group"
+      className="glass-card glass-card-hover rounded p-5 group"
     >
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
@@ -43,16 +43,16 @@ export default function PredictionCard({ item, index }: PredictionCardProps) {
             <span className={`${confidenceBg} ${confidenceColor} text-xs font-bold px-2 py-0.5 rounded-md`}>
               {item.confidence}% confidence
             </span>
-            <span className="text-xs text-slate-500 flex items-center gap-1">
+            <span className="text-xs text-gray-400 flex items-center gap-1">
               <Clock className="w-3 h-3" />
               {item.timeToTrend}
             </span>
           </div>
-          <h4 className="text-base font-semibold text-white group-hover:text-blue-300 transition-colors">
+          <h4 className="text-base font-semibold text-gray-900 group-hover:text-orange-600 transition-colors">
             {item.topic}
           </h4>
         </div>
-        <div className="flex items-center gap-1 text-emerald-400 font-bold text-lg">
+        <div className="flex items-center gap-1 text-orange-600 font-bold text-lg">
           <ArrowUpRight className="w-5 h-5" />
           {item.velocity.toFixed(1)}x
         </div>
@@ -64,24 +64,24 @@ export default function PredictionCard({ item, index }: PredictionCardProps) {
           <AreaChart data={item.dataPoints}>
             <defs>
               <linearGradient id={`gradient-${item.id}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4} />
-                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                <stop offset="5%" stopColor="#ea580c" stopOpacity={0.4} />
+                <stop offset="95%" stopColor="#ea580c" stopOpacity={0} />
               </linearGradient>
             </defs>
             <XAxis dataKey="time" hide />
             <Tooltip
               contentStyle={{
-                backgroundColor: '#1a1f2e',
-                border: '1px solid #2a3148',
-                borderRadius: '8px',
+                backgroundColor: '#ffffff',
+                border: '1px solid #e5e7eb',
+                borderRadius: '4px',
                 fontSize: '11px',
-                color: '#f1f5f9',
+                color: '#111827',
               }}
             />
             <Area
               type="monotone"
               dataKey="score"
-              stroke="#3b82f6"
+              stroke="#ea580c"
               fill={`url(#gradient-${item.id})`}
               strokeWidth={2}
               strokeDasharray={item.dataPoints.findIndex(p => p.time === 'Now') > -1 ? undefined : undefined}
@@ -93,16 +93,16 @@ export default function PredictionCard({ item, index }: PredictionCardProps) {
       {/* Progress bar */}
       <div className="mb-3">
         <div className="flex items-center justify-between text-xs mb-1.5">
-          <span className="text-slate-400">Current: {item.currentScore}</span>
-          <span className="text-slate-400">Predicted Peak: {item.predictedPeak}</span>
+          <span className="text-gray-500">Current: {item.currentScore}</span>
+          <span className="text-gray-500">Predicted Peak: {item.predictedPeak}</span>
         </div>
-        <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${progressWidth}%` }}
             transition={{ delay: index * 0.1 + 0.3, duration: 0.8, ease: 'easeOut' }}
             className="h-full rounded-full"
-            style={{ background: 'linear-gradient(90deg, #3b82f6, #8b5cf6)' }}
+            style={{ background: 'linear-gradient(90deg, #ea580c, #f97316)' }}
           />
         </div>
       </div>
@@ -114,7 +114,7 @@ export default function PredictionCard({ item, index }: PredictionCardProps) {
             <PlatformIcon key={platform} platform={platform} size="sm" />
           ))}
         </div>
-        <div className="flex items-center gap-1 text-xs text-amber-400">
+        <div className="flex items-center gap-1 text-xs text-orange-600">
           <Zap className="w-3 h-3" />
           High probability
         </div>
