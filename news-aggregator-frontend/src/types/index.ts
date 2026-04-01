@@ -1,5 +1,7 @@
 export type Platform = 'twitter' | 'tiktok' | 'instagram' | 'facebook' | 'reddit' | 'web';
 
+export type Sentiment = 'positive' | 'negative' | 'neutral';
+
 export interface NewsItem {
   id: string;
   title: string;
@@ -20,12 +22,14 @@ export interface NewsItem {
     likes: number;
     shares: number;
     comments: number;
-    velocity: number; // rate of engagement change per hour
+    velocity: number;
   };
-  trendScore: number; // 0-100
+  trendScore: number;
   hashtags: string[];
   isAutoPostEnabled: boolean;
   status: 'draft' | 'scheduled' | 'posted' | 'trending';
+  sentiment: Sentiment;
+  sentimentScore: number;
 }
 
 export interface TrendData {
@@ -71,4 +75,45 @@ export interface PredictionItem {
   platforms: Platform[];
   confidence: number;
   dataPoints: { time: string; score: number }[];
+}
+
+export interface Notification {
+  id: string;
+  type: 'trend_alert' | 'auto_post' | 'velocity_spike' | 'system';
+  title: string;
+  message: string;
+  timestamp: string;
+  read: boolean;
+  platform?: Platform;
+}
+
+export interface CalendarEvent {
+  id: string;
+  title: string;
+  date: string;
+  platform: Platform;
+  status: 'scheduled' | 'posted' | 'draft';
+  newsId?: string;
+}
+
+export interface CommentItem {
+  id: string;
+  author: string;
+  avatar: string;
+  content: string;
+  timestamp: string;
+  platform: Platform;
+  likes: number;
+  sentiment: Sentiment;
+  newsId: string;
+}
+
+export interface HashtagMetric {
+  tag: string;
+  impressions: number;
+  engagement: number;
+  posts: number;
+  growth: number;
+  platforms: Platform[];
+  trend: number[];
 }

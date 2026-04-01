@@ -1,16 +1,28 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './App.css';
 import Sidebar from './components/layout/Sidebar';
 import Header from './components/layout/Header';
-import StatsBar from './components/dashboard/StatsBar';
 import NewsCard from './components/dashboard/NewsCard';
-import TrendChart from './components/dashboard/TrendChart';
 import PredictionsPage from './components/trends/PredictionsPage';
 import GeographicPage from './components/dashboard/GeographicPage';
 import ContentPage from './components/content/ContentPage';
 import SocialHubPage from './components/social/SocialHubPage';
 import SettingsPage from './components/dashboard/SettingsPage';
+import AnalyticsDashboard from './components/analytics/AnalyticsDashboard';
+import ComparisonView from './components/analytics/ComparisonView';
+import ExportReports from './components/analytics/ExportReports';
+import ContentCalendar from './components/content/ContentCalendar';
+import PostComposer from './components/content/PostComposer';
+import CommentFeed from './components/features/CommentFeed';
+import HashtagTracker from './components/features/HashtagTracker';
+import BookmarksPage from './components/features/BookmarksPage';
+import AdvancedSearch from './components/features/AdvancedSearch';
+import DragDropDashboard from './components/features/DragDropDashboard';
+import InfiniteScroll from './components/features/InfiniteScroll';
+import KeyboardShortcuts from './components/features/KeyboardShortcuts';
+import OnboardingTour from './components/features/OnboardingTour';
+import { useTheme } from './contexts/ThemeContext';
 import { mockNews } from './data/mockData';
 import { Platform } from './types';
 
@@ -19,6 +31,11 @@ function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activePlatform, setActivePlatform] = useState<Platform | 'all'>('all');
+  const [showShortcuts, setShowShortcuts] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    return !localStorage.getItem('trendpulse-onboarding-done');
+  });
+  const { toggleTheme } = useTheme();
 
   const filteredNews = useMemo(() => {
     return mockNews.filter((item) => {
@@ -34,6 +51,20 @@ function App() {
     });
   }, [searchQuery, activePlatform]);
 
+  const handleNavigate = useCallback((tab: string) => {
+    if (tab === 'shortcuts') {
+      setShowShortcuts(true);
+    } else if (tab === 'theme') {
+      toggleTheme();
+    } else {
+      setActiveTab(tab);
+    }
+  }, [toggleTheme]);
+
+  const handleToggleNotifications = useCallback(() => {
+    // Toggle notifications panel via a custom event or direct state
+  }, []);
+
   const renderContent = () => {
     switch (activeTab) {
       case 'predictions':
@@ -46,6 +77,40 @@ function App() {
         return <SocialHubPage />;
       case 'settings':
         return <SettingsPage />;
+      case 'analytics':
+        return <AnalyticsDashboard />;
+      case 'comparison':
+        return <ComparisonView />;
+      case 'export':
+        return <ExportReports />;
+      case 'calendar':
+        return <ContentCalendar />;
+      case 'composer':
+        return <PostComposer />;
+      case 'comments':
+        return <CommentFeed />;
+      case 'hashtags':
+        return <HashtagTracker />;
+      case 'bookmarks':
+        return <BookmarksPage />;
+      case 'onboarding':
+        return (
+          <div className="space-y-6">
+            <div className="glass-card rounded-2xl p-8 text-center">
+              <h2 className="text-xl font-bold text-white mb-2">Onboarding Tour</h2>
+              <p className="text-sm text-slate-400 mb-4">Click below to restart the interactive tour</p>
+              <motion.button
+                onClick={() => setShowOnboarding(true)}
+                className="px-6 py-3 rounded-xl text-sm font-semibold text-white"
+                style={{ background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)' }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                Start Tour
+              </motion.button>
+            </div>
+          </div>
+        );
       default:
         return (
           <div className="space-y-6">
@@ -72,11 +137,11 @@ function App() {
               <div className="absolute bottom-0 right-24 w-16 h-16 rounded-full bg-purple-500/10 blur-xl" />
             </motion.div>
 
-            {/* Stats */}
-            <StatsBar />
+            {/* Advanced Search */}
+            <AdvancedSearch isOpen={true} onClose={() => {}} onApply={() => {}} />
 
-            {/* Trend Chart */}
-            <TrendChart />
+            {/* Drag & Drop Dashboard */}
+            <DragDropDashboard />
 
             {/* News Grid */}
             <div>
@@ -111,9 +176,11 @@ function App() {
                   exit={{ opacity: 0 }}
                   className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"
                 >
-                  {filteredNews.map((item, index) => (
-                    <NewsCard key={item.id} item={item} index={index} />
-                  ))}
+                  <InfiniteScroll pageSize={6}>
+                    {filteredNews.map((item, index) => (
+                      <NewsCard key={item.id} item={item} index={index} />
+                    ))}
+                  </InfiniteScroll>
                 </motion.div>
               </AnimatePresence>
 
@@ -164,6 +231,22 @@ function App() {
           </AnimatePresence>
         </div>
       </main>
+
+      {/* Keyboard Shortcuts */}
+      <KeyboardShortcuts
+        isOpen={showShortcuts}
+        onClose={() => setShowShortcuts(false)}
+        onNavigate={handleNavigate}
+        onToggleTheme={toggleTheme}
+        onToggleNotifications={handleToggleNotifications}
+      />
+
+      {/* Onboarding Tour */}
+      <OnboardingTour
+        isOpen={showOnboarding}
+        onClose={() => setShowOnboarding(false)}
+        onNavigate={handleNavigate}
+      />
     </div>
   );
 }

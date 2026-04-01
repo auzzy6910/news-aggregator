@@ -9,6 +9,15 @@ import {
   Zap,
   ChevronLeft,
   ChevronRight,
+  BarChart3,
+  GitCompareArrows,
+  Download,
+  Calendar,
+  Edit3,
+  MessageCircle,
+  Hash,
+  Bookmark,
+  HelpCircle,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -21,10 +30,19 @@ interface SidebarProps {
 const navItems = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'predictions', label: 'Predictions', icon: TrendingUp },
+  { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+  { id: 'comparison', label: 'Compare', icon: GitCompareArrows },
+  { id: 'export', label: 'Export', icon: Download },
   { id: 'geographic', label: 'Geographic', icon: MapPin },
+  { id: 'calendar', label: 'Calendar', icon: Calendar },
+  { id: 'composer', label: 'Composer', icon: Edit3 },
+  { id: 'comments', label: 'Engagement', icon: MessageCircle },
+  { id: 'hashtags', label: 'Hashtags', icon: Hash },
   { id: 'content', label: 'AI Content', icon: PenTool },
   { id: 'social', label: 'Social Hub', icon: Share2 },
+  { id: 'bookmarks', label: 'Bookmarks', icon: Bookmark },
   { id: 'settings', label: 'Settings', icon: Settings },
+  { id: 'onboarding', label: 'Tour', icon: HelpCircle },
 ];
 
 export default function Sidebar({ activeTab, onTabChange, collapsed, onToggleCollapse }: SidebarProps) {

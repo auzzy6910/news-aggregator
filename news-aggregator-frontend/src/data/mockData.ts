@@ -1,4 +1,4 @@
-import { NewsItem, TrendData, LocationNode, SocialAccount, AutoPostRule, PredictionItem } from '../types';
+import { NewsItem, TrendData, LocationNode, SocialAccount, AutoPostRule, PredictionItem, Notification, CalendarEvent, CommentItem, HashtagMetric } from '../types';
 
 export const mockNews: NewsItem[] = [
   {
@@ -18,6 +18,8 @@ export const mockNews: NewsItem[] = [
     hashtags: ['#ClimateAI', '#EastAfrica', '#TechForGood'],
     isAutoPostEnabled: false,
     status: 'trending',
+    sentiment: 'positive',
+    sentimentScore: 0.85,
   },
   {
     id: '2',
@@ -37,6 +39,8 @@ export const mockNews: NewsItem[] = [
     hashtags: ['#FinTok', '#GenZFinance', '#CryptoBasics'],
     isAutoPostEnabled: true,
     status: 'trending',
+    sentiment: 'positive',
+    sentimentScore: 0.72,
   },
   {
     id: '3',
@@ -56,6 +60,8 @@ export const mockNews: NewsItem[] = [
     hashtags: ['#Afrobeats', '#LagosMusic', '#MusicDiscovery'],
     isAutoPostEnabled: false,
     status: 'trending',
+    sentiment: 'positive',
+    sentimentScore: 0.91,
   },
   {
     id: '4',
@@ -74,6 +80,8 @@ export const mockNews: NewsItem[] = [
     hashtags: ['#4DayWorkWeek', '#FutureOfWork', '#Productivity'],
     isAutoPostEnabled: true,
     status: 'scheduled',
+    sentiment: 'neutral',
+    sentimentScore: 0.15,
   },
   {
     id: '5',
@@ -92,6 +100,8 @@ export const mockNews: NewsItem[] = [
     hashtags: ['#EVRevolution', '#ElectricCars', '#GreenEnergy'],
     isAutoPostEnabled: false,
     status: 'draft',
+    sentiment: 'positive',
+    sentimentScore: 0.88,
   },
   {
     id: '6',
@@ -110,6 +120,8 @@ export const mockNews: NewsItem[] = [
     hashtags: ['#MalariaVaccine', '#GlobalHealth', '#Africa'],
     isAutoPostEnabled: true,
     status: 'posted',
+    sentiment: 'positive',
+    sentimentScore: 0.95,
   },
   {
     id: '7',
@@ -129,6 +141,8 @@ export const mockNews: NewsItem[] = [
     hashtags: ['#StreetFood', '#Bangkok', '#FoodLovers'],
     isAutoPostEnabled: false,
     status: 'trending',
+    sentiment: 'positive',
+    sentimentScore: 0.78,
   },
   {
     id: '8',
@@ -147,6 +161,8 @@ export const mockNews: NewsItem[] = [
     hashtags: ['#SpaceX', '#Mars', '#Starship', '#Space'],
     isAutoPostEnabled: true,
     status: 'posted',
+    sentiment: 'positive',
+    sentimentScore: 0.93,
   },
 ];
 
@@ -380,3 +396,49 @@ export const categoryColors: Record<string, string> = {
   'Food & Culture': '#f97316',
   Space: '#06b6d4',
 };
+
+export const mockNotifications: Notification[] = [
+  { id: '1', type: 'trend_alert', title: 'New Trend Detected', message: 'AI Climate Monitoring is trending on X with 92 score', timestamp: '2026-04-01T12:30:00Z', read: false, platform: 'twitter' },
+  { id: '2', type: 'auto_post', title: 'Auto-Post Successful', message: 'Gen Z Finance content posted to Instagram', timestamp: '2026-04-01T11:15:00Z', read: false, platform: 'instagram' },
+  { id: '3', type: 'velocity_spike', title: 'Velocity Spike!', message: 'SpaceX Starship post engagement up 340%', timestamp: '2026-04-01T10:00:00Z', read: false, platform: 'reddit' },
+  { id: '4', type: 'trend_alert', title: 'Viral Content Alert', message: '#MoveWithMe dance challenge hitting 99 trend score', timestamp: '2026-04-01T09:30:00Z', read: true, platform: 'tiktok' },
+  { id: '5', type: 'system', title: 'Weekly Digest Ready', message: 'Your weekly trend performance report is available', timestamp: '2026-03-31T08:00:00Z', read: true },
+  { id: '6', type: 'auto_post', title: 'Scheduled Post Live', message: 'EV Sales article posted to Facebook', timestamp: '2026-03-31T06:00:00Z', read: true, platform: 'facebook' },
+];
+
+export const mockCalendarEvents: CalendarEvent[] = [
+  { id: '1', title: 'AI Climate Monitoring Post', date: '2026-04-01', platform: 'twitter', status: 'posted', newsId: '1' },
+  { id: '2', title: 'Gen Z Finance Thread', date: '2026-04-01', platform: 'tiktok', status: 'posted', newsId: '2' },
+  { id: '3', title: 'Lagos Music Feature', date: '2026-04-02', platform: 'instagram', status: 'scheduled', newsId: '3' },
+  { id: '4', title: '4-Day Work Week Analysis', date: '2026-04-02', platform: 'reddit', status: 'scheduled', newsId: '4' },
+  { id: '5', title: 'EV Sales Report', date: '2026-04-03', platform: 'facebook', status: 'draft', newsId: '5' },
+  { id: '6', title: 'Malaria Vaccine Update', date: '2026-04-03', platform: 'twitter', status: 'scheduled', newsId: '6' },
+  { id: '7', title: 'Bangkok Food Festival Recap', date: '2026-04-04', platform: 'instagram', status: 'draft', newsId: '7' },
+  { id: '8', title: 'SpaceX Mars Landing Story', date: '2026-04-05', platform: 'reddit', status: 'scheduled', newsId: '8' },
+  { id: '9', title: 'Weekly Trend Roundup', date: '2026-04-06', platform: 'twitter', status: 'draft' },
+  { id: '10', title: 'Platform Growth Report', date: '2026-04-07', platform: 'facebook', status: 'draft' },
+];
+
+export const mockComments: CommentItem[] = [
+  { id: '1', author: '@ClimateWatcher', avatar: '', content: 'This is incredible! AI + conservation = the future.', timestamp: '2026-04-01T12:45:00Z', platform: 'twitter', likes: 234, sentiment: 'positive', newsId: '1' },
+  { id: '2', author: '@SkepticJoe', avatar: '', content: 'How accurate is 15-minute monitoring really? Seems overhyped.', timestamp: '2026-04-01T12:50:00Z', platform: 'twitter', likes: 45, sentiment: 'negative', newsId: '1' },
+  { id: '3', author: '@FinanceBro', avatar: '', content: 'Finally Gen Z is learning about real investing!', timestamp: '2026-04-01T10:30:00Z', platform: 'tiktok', likes: 1200, sentiment: 'positive', newsId: '2' },
+  { id: '4', author: '@MusicLover', avatar: '', content: 'Afrobeats fusion is the best thing to happen to music this year', timestamp: '2026-04-01T09:00:00Z', platform: 'instagram', likes: 567, sentiment: 'positive', newsId: '3' },
+  { id: '5', author: 'u/WorkReform', avatar: '', content: 'My company switched and productivity went up 20%. Data backs this up.', timestamp: '2026-04-01T07:00:00Z', platform: 'reddit', likes: 3400, sentiment: 'positive', newsId: '4' },
+  { id: '6', author: '@EVSkeptic', avatar: '', content: 'Infrastructure still not ready for mass EV adoption though', timestamp: '2026-04-01T05:00:00Z', platform: 'facebook', likes: 890, sentiment: 'negative', newsId: '5' },
+  { id: '7', author: '@HealthNews', avatar: '', content: '95% efficacy is unprecedented. This could save millions.', timestamp: '2026-03-31T23:00:00Z', platform: 'twitter', likes: 4500, sentiment: 'positive', newsId: '6' },
+  { id: '8', author: '@FoodCritic', avatar: '', content: 'The Thai-Mexican fusion tacos were mid honestly', timestamp: '2026-03-31T19:00:00Z', platform: 'instagram', likes: 123, sentiment: 'neutral', newsId: '7' },
+];
+
+export const mockHashtagMetrics: HashtagMetric[] = [
+  { tag: '#ClimateAI', impressions: 2400000, engagement: 186000, posts: 1240, growth: 34.5, platforms: ['twitter', 'reddit'], trend: [20, 35, 48, 62, 78, 95, 120] },
+  { tag: '#FinTok', impressions: 8900000, engagement: 567000, posts: 4500, growth: 67.2, platforms: ['tiktok', 'instagram'], trend: [45, 58, 72, 89, 110, 145, 180] },
+  { tag: '#Afrobeats', impressions: 5600000, engagement: 345000, posts: 2800, growth: 23.1, platforms: ['instagram', 'tiktok', 'twitter'], trend: [60, 65, 72, 78, 85, 92, 98] },
+  { tag: '#4DayWorkWeek', impressions: 3200000, engagement: 234000, posts: 1890, growth: 45.8, platforms: ['reddit', 'twitter', 'facebook'], trend: [15, 28, 42, 55, 68, 82, 95] },
+  { tag: '#EVRevolution', impressions: 7800000, engagement: 489000, posts: 3200, growth: 52.3, platforms: ['facebook', 'twitter', 'reddit'], trend: [30, 45, 62, 78, 95, 118, 142] },
+  { tag: '#MalariaVaccine', impressions: 12000000, engagement: 890000, posts: 5600, growth: 89.1, platforms: ['twitter', 'facebook', 'reddit'], trend: [10, 25, 55, 85, 120, 165, 210] },
+  { tag: '#SpaceX', impressions: 15000000, engagement: 1200000, posts: 8900, growth: 28.4, platforms: ['reddit', 'twitter', 'tiktok'], trend: [80, 88, 95, 102, 110, 118, 125] },
+  { tag: '#StreetFood', impressions: 4500000, engagement: 312000, posts: 2100, growth: 18.7, platforms: ['instagram', 'tiktok'], trend: [50, 55, 58, 62, 65, 68, 72] },
+  { tag: '#GenZFinance', impressions: 6700000, engagement: 456000, posts: 3400, growth: 71.5, platforms: ['tiktok', 'twitter'], trend: [25, 40, 58, 75, 95, 120, 150] },
+  { tag: '#FutureOfWork', impressions: 4100000, engagement: 278000, posts: 1560, growth: 31.2, platforms: ['twitter', 'reddit', 'facebook'], trend: [35, 42, 48, 55, 62, 70, 78] },
+];
