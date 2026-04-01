@@ -1,11 +1,23 @@
 import { motion } from 'framer-motion';
 import { AreaChart, Area, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
 import { Zap, Clock, ArrowUpRight } from 'lucide-react';
-import { PredictionItem } from '../../types';
+import { Platform } from '../../types';
 import PlatformIcon from '../layout/PlatformIcon';
 
+interface PredictionCardItem {
+  _id: string;
+  topic: string;
+  currentScore: number;
+  predictedPeak: number;
+  timeToTrend: string;
+  velocity: number;
+  platforms: Platform[];
+  confidence: number;
+  dataPoints: { time: string; score: number }[];
+}
+
 interface PredictionCardProps {
-  item: PredictionItem;
+  item: PredictionCardItem;
   index: number;
 }
 
@@ -63,7 +75,7 @@ export default function PredictionCard({ item, index }: PredictionCardProps) {
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={item.dataPoints}>
             <defs>
-              <linearGradient id={`gradient-${item.id}`} x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id={`gradient-${item._id}`} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#FF5722" stopOpacity={0.4} />
                 <stop offset="95%" stopColor="#FF5722" stopOpacity={0} />
               </linearGradient>
@@ -82,7 +94,7 @@ export default function PredictionCard({ item, index }: PredictionCardProps) {
               type="monotone"
               dataKey="score"
               stroke="#FF5722"
-              fill={`url(#gradient-${item.id})`}
+              fill={`url(#gradient-${item._id})`}
               strokeWidth={2}
               strokeDasharray={item.dataPoints.findIndex(p => p.time === 'Now') > -1 ? undefined : undefined}
             />

@@ -1,9 +1,12 @@
 import { motion } from 'framer-motion';
 import { Sparkles, TrendingUp, Zap, BarChart3 } from 'lucide-react';
-import { predictions } from '../../data/mockData';
+import { useQuery } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
 import PredictionCard from './PredictionCard';
 
 export default function PredictionsPage() {
+  const predictions = useQuery(api.predictions.list) ?? [];
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -59,7 +62,7 @@ export default function PredictionsPage() {
             <span className="text-sm text-gray-500">Avg Velocity</span>
           </div>
           <p className="text-3xl font-bold text-gray-900">
-            {(predictions.reduce((a, b) => a + b.velocity, 0) / predictions.length).toFixed(1)}x
+            {predictions.length ? (predictions.reduce((a, b) => a + b.velocity, 0) / predictions.length).toFixed(1) : '0.0'}x
           </p>
           <p className="text-xs text-gray-400 mt-1">Engagement acceleration</p>
         </motion.div>
@@ -81,7 +84,7 @@ export default function PredictionsPage() {
       {/* Prediction cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {predictions.map((prediction, index) => (
-          <PredictionCard key={prediction.id} item={prediction} index={index} />
+          <PredictionCard key={prediction._id} item={prediction} index={index} />
         ))}
       </div>
     </div>

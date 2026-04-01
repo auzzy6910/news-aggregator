@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
   Share2,
@@ -12,8 +12,10 @@ import {
   AlertCircle,
   Settings2,
 } from 'lucide-react';
-import { socialAccounts, autoPostRules, mockNews } from '../../data/mockData';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
 import PlatformIcon from '../layout/PlatformIcon';
+import { toNewsItem } from '../../lib/convexHelpers';
 
 function formatNumber(num: number): string {
   if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
@@ -22,14 +24,18 @@ function formatNumber(num: number): string {
 }
 
 export default function SocialHubPage() {
-  const [rules, setRules] = useState(autoPostRules);
+  const socialAccounts = useQuery(api.socialAccounts.list) ?? [];
+  const rules = useQuery(api.autoPostRules.list) ?? [];
+  const newsItems = useQuery(api.news.list, {});
+  const allNews = useMemo(() => (newsItems ?? []).map(toNewsItem), [newsItems]);
+  const toggleRuleMutation = useMutation(api.autoPostRules.toggleRule);
 
   const toggleRule = (id: string) => {
-    setRules(rules.map((r) => (r.id === id ? { ...r, enabled: !r.enabled } : r)));
+    toggleRuleMutation({ id: id as never });
   };
 
-  const postedItems = mockNews.filter((n) => n.status === 'posted');
-  const scheduledItems = mockNews.filter((n) => n.status === 'scheduled');
+  const postedItems = allNews.filter((n) => n.status === 'posted');
+  const scheduledItems = allNews.filter((n) => n.status === 'scheduled');
 
   return (
     <div className="space-y-6">
@@ -67,7 +73,7 @@ export default function SocialHubPage() {
           <div className="space-y-3">
             {socialAccounts.map((account) => (
               <div
-                key={account.id}
+                key={account._id}
                 className={`flex items-center justify-between p-3 rounded-xl border transition-all ${
                   account.connected
                     ? 'bg-white border-gray-200'
@@ -124,7 +130,7 @@ export default function SocialHubPage() {
           </h3>
           <div className="space-y-4">
             {rules.map((rule) => (
-              <div key={rule.id} className="p-4 rounded-xl bg-gray-50 border border-gray-200">
+              <div key={rule._id} className="p-4 rounded-xl bg-gray-50 border border-gray-200">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <PlatformIcon platform={rule.platform} size="sm" />
@@ -133,7 +139,7 @@ export default function SocialHubPage() {
                     </span>
                   </div>
                   <button
-                    onClick={() => toggleRule(rule.id)}
+                    onClick={() => toggleRule(rule._id)}
                     className={`relative w-10 h-5 rounded-full transition-all ${
                       rule.enabled ? 'bg-orange-500' : 'bg-gray-300'
                     }`}
