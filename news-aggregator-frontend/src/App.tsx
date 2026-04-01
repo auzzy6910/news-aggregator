@@ -1,5 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useQuery } from 'convex/react';
+import { api } from '../convex/_generated/api';
 import './App.css';
 import Sidebar from './components/layout/Sidebar';
 import Header from './components/layout/Header';
@@ -11,7 +13,6 @@ import GeographicPage from './components/dashboard/GeographicPage';
 import ContentPage from './components/content/ContentPage';
 import SocialHubPage from './components/social/SocialHubPage';
 import SettingsPage from './components/dashboard/SettingsPage';
-import { mockNews } from './data/mockData';
 import { Platform } from './types';
 
 function App() {
@@ -20,19 +21,12 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activePlatform, setActivePlatform] = useState<Platform | 'all'>('all');
 
-  const filteredNews = useMemo(() => {
-    return mockNews.filter((item) => {
-      const matchesSearch =
-        !searchQuery ||
-        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.hashtags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+  const newsItems = useQuery(api.newsItems.list, {
+    platform: activePlatform === 'all' ? undefined : activePlatform,
+    searchQuery: searchQuery || undefined,
+  });
 
-      const matchesPlatform = activePlatform === 'all' || item.platform === activePlatform;
-
-      return matchesSearch && matchesPlatform;
-    });
-  }, [searchQuery, activePlatform]);
+  const filteredNews = newsItems ?? [];
 
   const renderContent = () => {
     switch (activeTab) {

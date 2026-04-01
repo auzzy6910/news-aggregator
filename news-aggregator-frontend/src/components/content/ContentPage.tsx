@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   Sparkles,
@@ -12,27 +12,47 @@ import {
   Type,
   Settings2,
 } from 'lucide-react';
-import { mockNews } from '../../data/mockData';
+import { useQuery } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
 import PlatformIcon from '../layout/PlatformIcon';
 
 const toneOptions = ['Professional', 'Casual', 'Witty', 'Informative', 'Provocative'];
 const lengthOptions = ['Short (< 280 chars)', 'Medium (1-2 paragraphs)', 'Long (Thread/Article)'];
 
 export default function ContentPage() {
-  const [selectedNews, setSelectedNews] = useState(mockNews[0]);
+  const allNews = useQuery(api.newsItems.list, {}) ?? [];
+  const [selectedNewsId, setSelectedNewsId] = useState<string | null>(null);
   const [selectedTone, setSelectedTone] = useState('Professional');
   const [selectedLength, setSelectedLength] = useState('Short (< 280 chars)');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedContent, setGeneratedContent] = useState(selectedNews.aiDraft);
+  const [generatedContent, setGeneratedContent] = useState('');
   const [hashtagCount, setHashtagCount] = useState(5);
+
+  const selectedNews = allNews.find((n) => n.id === selectedNewsId) ?? allNews[0];
+
+  useEffect(() => {
+    if (selectedNews && !generatedContent) {
+      setGeneratedContent(selectedNews.aiDraft);
+    }
+  }, [selectedNews, generatedContent]);
 
   const handleGenerate = () => {
     setIsGenerating(true);
     setTimeout(() => {
-      setGeneratedContent(selectedNews.aiDraft);
+      if (selectedNews) {
+        setGeneratedContent(selectedNews.aiDraft);
+      }
       setIsGenerating(false);
     }, 2000);
   };
+
+  if (!selectedNews) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -68,11 +88,11 @@ export default function ContentPage() {
             Select Source Content
           </h3>
           <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
-            {mockNews.map((news) => (
+            {allNews.map((news) => (
               <button
                 key={news.id}
                 onClick={() => {
-                  setSelectedNews(news);
+                  setSelectedNewsId(news.id as string);
                   setGeneratedContent(news.aiDraft);
                 }}
                 className={`w-full text-left p-3 rounded-xl transition-all ${
