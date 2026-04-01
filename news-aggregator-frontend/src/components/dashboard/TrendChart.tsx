@@ -9,9 +9,12 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts';
-import { trendTimelineData, platformColors } from '../../data/mockData';
+import { useQuery } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
+import { platformColors } from '../../data/mockData';
 
 export default function TrendChart() {
+  const trendTimelineData = useQuery(api.trendData.list) ?? [];
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}

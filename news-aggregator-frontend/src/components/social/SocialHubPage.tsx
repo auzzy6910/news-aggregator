@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Share2,
@@ -12,8 +11,10 @@ import {
   AlertCircle,
   Settings2,
 } from 'lucide-react';
-import { socialAccounts, autoPostRules, mockNews } from '../../data/mockData';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
 import PlatformIcon from '../layout/PlatformIcon';
+import { Id } from '../../../convex/_generated/dataModel';
 
 function formatNumber(num: number): string {
   if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
@@ -22,14 +23,17 @@ function formatNumber(num: number): string {
 }
 
 export default function SocialHubPage() {
-  const [rules, setRules] = useState(autoPostRules);
+  const socialAccounts = useQuery(api.socialAccounts.list) ?? [];
+  const rules = useQuery(api.autoPostRules.list) ?? [];
+  const allNews = useQuery(api.newsItems.list, {}) ?? [];
+  const toggleRuleMutation = useMutation(api.autoPostRules.toggleRule);
 
   const toggleRule = (id: string) => {
-    setRules(rules.map((r) => (r.id === id ? { ...r, enabled: !r.enabled } : r)));
+    toggleRuleMutation({ id: id as Id<"autoPostRules"> });
   };
 
-  const postedItems = mockNews.filter((n) => n.status === 'posted');
-  const scheduledItems = mockNews.filter((n) => n.status === 'scheduled');
+  const postedItems = allNews.filter((n) => n.status === 'posted');
+  const scheduledItems = allNews.filter((n) => n.status === 'scheduled');
 
   return (
     <div className="space-y-6">
