@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MapPin, ChevronRight, Globe, X } from 'lucide-react';
-import { locationTree } from '../../data/mockData';
-import { LocationNode } from '../../types';
+import { useQuery } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
 
 interface GeographicFilterProps {
   selectedCountry: string | null;
@@ -18,8 +18,9 @@ export default function GeographicFilter({
   onRegionChange,
 }: GeographicFilterProps) {
   const [expandedCountry, setExpandedCountry] = useState<string | null>(null);
+  const locationTree = useQuery(api.locations.getTree) ?? [];
 
-  const handleCountryClick = (country: LocationNode) => {
+  const handleCountryClick = (country: { name: string; code: string; type: string; children?: { name: string; code: string; type: string }[] }) => {
     if (expandedCountry === country.name) {
       setExpandedCountry(null);
     } else {
@@ -29,7 +30,7 @@ export default function GeographicFilter({
     onRegionChange(null);
   };
 
-  const handleRegionClick = (region: LocationNode) => {
+  const handleRegionClick = (region: { name: string; code: string; type: string }) => {
     onRegionChange(region.name);
   };
 

@@ -9,9 +9,13 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts';
-import { trendTimelineData, platformColors } from '../../data/mockData';
+import { useQuery } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
+import { platformColors } from '../../data/mockData';
 
 export default function TrendChart() {
+  const trendTimelineData = useQuery(api.trends.getTimeline) ?? [];
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -42,7 +46,7 @@ export default function TrendChart() {
 
       <div className="h-72">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={trendTimelineData}>
+          <AreaChart data={trendTimelineData as Record<string, unknown>[]}>
             <defs>
               <linearGradient id="colorTwitter" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor={platformColors.twitter} stopOpacity={0.3} />

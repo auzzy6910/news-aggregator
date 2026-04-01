@@ -12,7 +12,8 @@ import {
   AlertCircle,
   Settings2,
 } from 'lucide-react';
-import { socialAccounts, autoPostRules, mockNews } from '../../data/mockData';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
 import PlatformIcon from '../layout/PlatformIcon';
 
 function formatNumber(num: number): string {
@@ -22,14 +23,29 @@ function formatNumber(num: number): string {
 }
 
 export default function SocialHubPage() {
-  const [rules, setRules] = useState(autoPostRules);
+  const socialAccountsData = useQuery(api.socialAccounts.list) ?? [];
+  const rulesData = useQuery(api.autoPostRules.list) ?? [];
+  const allNews = useQuery(api.news.list, {}) ?? [];
+  const toggleRuleMutation = useMutation(api.autoPostRules.toggleRule);
+  const toggleConnectionMutation = useMutation(api.socialAccounts.toggleConnection);
+
+  const [localRuleOverrides, setLocalRuleOverrides] = useState<Record<string, boolean>>({});
+
+  const rules = rulesData.map((r) => ({
+    ...r,
+    enabled: localRuleOverrides[r._id] !== undefined ? localRuleOverrides[r._id] : r.enabled,
+  }));
 
   const toggleRule = (id: string) => {
-    setRules(rules.map((r) => (r.id === id ? { ...r, enabled: !r.enabled } : r)));
+    const rule = rules.find((r) => r._id === id);
+    if (rule) {
+      setLocalRuleOverrides((prev) => ({ ...prev, [id]: !rule.enabled }));
+      toggleRuleMutation({ id: id as never });
+    }
   };
 
-  const postedItems = mockNews.filter((n) => n.status === 'posted');
-  const scheduledItems = mockNews.filter((n) => n.status === 'scheduled');
+  const postedItems = allNews.filter((n) => n.status === 'posted');
+  const scheduledItems = allNews.filter((n) => n.status === 'scheduled');
 
   return (
     <div className="space-y-6">
@@ -65,9 +81,9 @@ export default function SocialHubPage() {
             Connected Accounts
           </h3>
           <div className="space-y-3">
-            {socialAccounts.map((account) => (
+            {socialAccountsData.map((account) => (
               <div
-                key={account.id}
+                key={account._id}
                 className={`flex items-center justify-between p-3 rounded-xl border transition-all ${
                   account.connected
                     ? 'bg-white border-gray-200'
@@ -87,6 +103,7 @@ export default function SocialHubPage() {
                   </div>
                 </div>
                 <motion.button
+                  onClick={() => toggleConnectionMutation({ id: account._id })}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all ${
                     account.connected
                       ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
@@ -124,7 +141,7 @@ export default function SocialHubPage() {
           </h3>
           <div className="space-y-4">
             {rules.map((rule) => (
-              <div key={rule.id} className="p-4 rounded-xl bg-gray-50 border border-gray-200">
+              <div key={rule._id} className="p-4 rounded-xl bg-gray-50 border border-gray-200">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <PlatformIcon platform={rule.platform} size="sm" />
@@ -133,7 +150,7 @@ export default function SocialHubPage() {
                     </span>
                   </div>
                   <button
-                    onClick={() => toggleRule(rule.id)}
+                    onClick={() => toggleRule(rule._id)}
                     className={`relative w-10 h-5 rounded-full transition-all ${
                       rule.enabled ? 'bg-orange-500' : 'bg-gray-300'
                     }`}
@@ -198,7 +215,7 @@ export default function SocialHubPage() {
             </p>
             <div className="space-y-2">
               {scheduledItems.map((item) => (
-                <div key={item.id} className="p-3 rounded-xl bg-orange-50 border border-orange-200">
+                <div key={item._id} className="p-3 rounded-xl bg-orange-50 border border-orange-200">
                   <div className="flex items-center gap-2 mb-1.5">
                     <PlatformIcon platform={item.platform} size="sm" />
                     <span className="text-xs text-orange-600 font-medium">Scheduled</span>
@@ -228,7 +245,7 @@ export default function SocialHubPage() {
             </p>
             <div className="space-y-2">
               {postedItems.map((item) => (
-                <div key={item.id} className="p-3 rounded-xl bg-emerald-50 border border-emerald-200">
+                <div key={item._id} className="p-3 rounded-xl bg-emerald-50 border border-emerald-200">
                   <div className="flex items-center gap-2 mb-1.5">
                     <PlatformIcon platform={item.platform} size="sm" />
                     <span className="text-xs text-emerald-400 font-medium">Posted</span>
