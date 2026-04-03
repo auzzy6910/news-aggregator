@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
   Sparkles,
   Copy,
+  Check,
   RefreshCw,
   Send,
   PenTool,
@@ -12,23 +13,23 @@ import {
   Type,
   Settings2,
 } from 'lucide-react';
-import { useQuery } from 'convex/react';
-import { api } from '../../../convex/_generated/api';
+import { useData } from '../../context/DataProvider';
 import PlatformIcon from '../layout/PlatformIcon';
 
 const toneOptions = ['Professional', 'Casual', 'Witty', 'Informative', 'Provocative'];
 const lengthOptions = ['Short (< 280 chars)', 'Medium (1-2 paragraphs)', 'Long (Thread/Article)'];
 
 export default function ContentPage() {
-  const newsData = useQuery(api.news.list, {}) ?? [];
+  const { news: newsData, updateNewsStatus } = useData();
   const [selectedNewsId, setSelectedNewsId] = useState<string | null>(null);
   const [selectedTone, setSelectedTone] = useState('Professional');
   const [selectedLength, setSelectedLength] = useState('Short (< 280 chars)');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedContent, setGeneratedContent] = useState('');
   const [hashtagCount, setHashtagCount] = useState(5);
+  const [copied, setCopied] = useState(false);
 
-  const selectedNews = newsData.find((n) => n._id === selectedNewsId) ?? newsData[0];
+  const selectedNews = newsData.find((n) => n.id === selectedNewsId) ?? newsData[0];
 
   useEffect(() => {
     if (selectedNews) {
@@ -39,10 +40,35 @@ export default function ContentPage() {
   const handleGenerate = () => {
     setIsGenerating(true);
     setTimeout(() => {
-      setGeneratedContent(selectedNews.aiDraft);
+      if (selectedNews) {
+        setGeneratedContent(selectedNews.aiDraft);
+      }
       setIsGenerating(false);
     }, 2000);
   };
+
+  const handleCopy = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(generatedContent);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      const textarea = document.createElement('textarea');
+      textarea.value = generatedContent;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }, [generatedContent]);
+
+  const handlePostNow = useCallback(() => {
+    if (selectedNews) {
+      updateNewsStatus(selectedNews.id, 'posted');
+    }
+  }, [selectedNews, updateNewsStatus]);
 
   return (
     <div className="space-y-6">
@@ -80,13 +106,13 @@ export default function ContentPage() {
           <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
             {newsData.map((news) => (
               <button
-                key={news._id}
+                key={news.id}
                 onClick={() => {
-                  setSelectedNewsId(news._id);
+                  setSelectedNewsId(news.id);
                   setGeneratedContent(news.aiDraft);
                 }}
                 className={`w-full text-left p-3 rounded-xl transition-all ${
-                  selectedNews?._id === news._id
+                  selectedNews?.id === news.id
                     ? 'bg-orange-500/10 border border-orange-500/30'
                     : 'hover:bg-gray-50 border border-transparent'
                 }`}
@@ -248,21 +274,43 @@ export default function ContentPage() {
           {/* Action buttons */}
           <div className="flex items-center gap-2">
             <motion.button
-              className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium text-white transition-all"
-              style={{ background: 'linear-gradient(135deg, #FF5722, #E64A19)' }}
+              onClick={handlePostNow}
+              className={`flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium text-white transition-all ${
+                selectedNews?.status === 'posted' ? 'bg-emerald-500' : ''
+              }`}
+              style={selectedNews?.status !== 'posted' ? { background: 'linear-gradient(135deg, #FF5722, #E64A19)' } : undefined}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              <Send className="w-3.5 h-3.5" />
-              Post Now
+              {selectedNews?.status === 'posted' ? (
+                <>
+                  <Check className="w-3.5 h-3.5" />
+                  Posted
+                </>
+              ) : (
+                <>
+                  <Send className="w-3.5 h-3.5" />
+                  Post Now
+                </>
+              )}
             </motion.button>
             <motion.button
+              onClick={handleCopy}
               className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-600 bg-gray-50 border border-gray-200 hover:bg-gray-100 transition-all"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              <Copy className="w-3.5 h-3.5" />
-              Copy
+              {copied ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-emerald-500" />
+                  <span className="text-emerald-500">Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5" />
+                  Copy
+                </>
+              )}
             </motion.button>
           </div>
         </motion.div>

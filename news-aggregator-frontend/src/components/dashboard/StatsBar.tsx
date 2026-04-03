@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 import { TrendingUp, Eye, Share2, Zap } from 'lucide-react';
-import { useQuery } from 'convex/react';
-import { api } from '../../../convex/_generated/api';
+import { useData } from '../../context/DataProvider';
 
 function formatStatNumber(num: number): string {
   if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
@@ -10,12 +9,12 @@ function formatStatNumber(num: number): string {
 }
 
 export default function StatsBar() {
-  const statsData = useQuery(api.news.getStats);
+  const { stats: statsData } = useData();
 
   const stats = [
     {
       label: 'Trending Now',
-      value: statsData ? statsData.trendingCount.toLocaleString() : '...',
+      value: statsData.trendingCount.toLocaleString(),
       change: '+12.5%',
       positive: true,
       icon: TrendingUp,
@@ -23,7 +22,7 @@ export default function StatsBar() {
     },
     {
       label: 'Total Impressions',
-      value: statsData ? formatStatNumber(statsData.totalImpressions) : '...',
+      value: formatStatNumber(statsData.totalImpressions),
       change: '+8.3%',
       positive: true,
       icon: Eye,
@@ -31,7 +30,7 @@ export default function StatsBar() {
     },
     {
       label: 'Auto-Posted',
-      value: statsData ? statsData.autoPosted.toString() : '...',
+      value: statsData.autoPosted.toString(),
       change: '+23.1%',
       positive: true,
       icon: Share2,
@@ -39,7 +38,7 @@ export default function StatsBar() {
     },
     {
       label: 'Velocity Score',
-      value: statsData ? statsData.avgVelocity.toString() : '...',
+      value: statsData.avgVelocity.toString(),
       change: '+5.2%',
       positive: true,
       icon: Zap,

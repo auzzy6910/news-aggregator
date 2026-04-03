@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Share2,
   Link2,
@@ -10,11 +10,12 @@ import {
   Clock,
   CheckCircle2,
   AlertCircle,
-  Settings2,
+  Plus,
+  X,
 } from 'lucide-react';
-import { useQuery, useMutation } from 'convex/react';
-import { api } from '../../../convex/_generated/api';
+import { useData } from '../../context/DataProvider';
 import PlatformIcon from '../layout/PlatformIcon';
+import { Platform } from '../../types';
 
 function formatNumber(num: number): string {
   if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
@@ -22,30 +23,42 @@ function formatNumber(num: number): string {
   return num.toString();
 }
 
+const availablePlatforms: Platform[] = ['twitter', 'tiktok', 'instagram', 'facebook', 'reddit', 'web'];
+
 export default function SocialHubPage() {
-  const socialAccountsData = useQuery(api.socialAccounts.list) ?? [];
-  const rulesData = useQuery(api.autoPostRules.list) ?? [];
-  const allNews = useQuery(api.news.list, {}) ?? [];
-  const toggleRuleMutation = useMutation(api.autoPostRules.toggleRule);
-  const toggleConnectionMutation = useMutation(api.socialAccounts.toggleConnection);
+  const {
+    socialAccounts: socialAccountsData,
+    autoPostRules: rules,
+    news: allNews,
+    toggleRule,
+    toggleConnection,
+    addRule,
+    updateRuleThreshold,
+    updateNewsStatus,
+  } = useData();
 
-  const [localRuleOverrides, setLocalRuleOverrides] = useState<Record<string, boolean>>({});
-
-  const rules = rulesData.map((r) => ({
-    ...r,
-    enabled: localRuleOverrides[r._id] !== undefined ? localRuleOverrides[r._id] : r.enabled,
-  }));
-
-  const toggleRule = (id: string) => {
-    const rule = rules.find((r) => r._id === id);
-    if (rule) {
-      setLocalRuleOverrides((prev) => ({ ...prev, [id]: !rule.enabled }));
-      toggleRuleMutation({ id: id as never });
-    }
-  };
+  const [showAddRuleModal, setShowAddRuleModal] = useState(false);
+  const [newRulePlatform, setNewRulePlatform] = useState<Platform>('twitter');
+  const [newRuleThreshold, setNewRuleThreshold] = useState(70);
 
   const postedItems = allNews.filter((n) => n.status === 'posted');
   const scheduledItems = allNews.filter((n) => n.status === 'scheduled');
+
+  const handleAddRule = useCallback(() => {
+    addRule({
+      platform: newRulePlatform,
+      threshold: newRuleThreshold,
+      enabled: true,
+      accounts: [],
+    });
+    setShowAddRuleModal(false);
+    setNewRulePlatform('twitter');
+    setNewRuleThreshold(70);
+  }, [addRule, newRulePlatform, newRuleThreshold]);
+
+  const handlePostNow = useCallback((id: string) => {
+    updateNewsStatus(id, 'posted');
+  }, [updateNewsStatus]);
 
   return (
     <div className="space-y-6">
@@ -83,7 +96,7 @@ export default function SocialHubPage() {
           <div className="space-y-3">
             {socialAccountsData.map((account) => (
               <div
-                key={account._id}
+                key={account.id}
                 className={`flex items-center justify-between p-3 rounded-xl border transition-all ${
                   account.connected
                     ? 'bg-white border-gray-200'
@@ -103,7 +116,7 @@ export default function SocialHubPage() {
                   </div>
                 </div>
                 <motion.button
-                  onClick={() => toggleConnectionMutation({ id: account._id })}
+                  onClick={() => toggleConnection(account.id)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all ${
                     account.connected
                       ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
@@ -141,7 +154,7 @@ export default function SocialHubPage() {
           </h3>
           <div className="space-y-4">
             {rules.map((rule) => (
-              <div key={rule._id} className="p-4 rounded-xl bg-gray-50 border border-gray-200">
+              <div key={rule.id} className="p-4 rounded-xl bg-gray-50 border border-gray-200">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <PlatformIcon platform={rule.platform} size="sm" />
@@ -150,7 +163,7 @@ export default function SocialHubPage() {
                     </span>
                   </div>
                   <button
-                    onClick={() => toggleRule(rule._id)}
+                    onClick={() => toggleRule(rule.id)}
                     className={`relative w-10 h-5 rounded-full transition-all ${
                       rule.enabled ? 'bg-orange-500' : 'bg-gray-300'
                     }`}
@@ -167,17 +180,14 @@ export default function SocialHubPage() {
                     <span className="text-gray-500">Virality Threshold</span>
                     <span className="text-gray-900 font-medium">{rule.threshold}+</span>
                   </div>
-                  <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all"
-                      style={{
-                        width: `${rule.threshold}%`,
-                        background: rule.enabled
-                          ? 'linear-gradient(90deg, #FF5722, #E64A19)'
-                          : '#9ca3af',
-                      }}
-                    />
-                  </div>
+                  <input
+                    type="range"
+                    min={10}
+                    max={100}
+                    value={rule.threshold}
+                    onChange={(e) => updateRuleThreshold(rule.id, Number(e.target.value))}
+                    className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
+                  />
                   <p className="text-xs text-gray-400">
                     {rule.enabled ? 'Auto-posts when trend score exceeds threshold' : 'Rule disabled'}
                   </p>
@@ -186,10 +196,11 @@ export default function SocialHubPage() {
             ))}
 
             <motion.button
+              onClick={() => setShowAddRuleModal(true)}
               className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-500 bg-gray-50 border border-dashed border-gray-300 hover:bg-gray-100 hover:border-gray-400 transition-all"
               whileTap={{ scale: 0.98 }}
             >
-              <Settings2 className="w-4 h-4" />
+              <Plus className="w-4 h-4" />
               Add New Rule
             </motion.button>
           </div>
@@ -215,7 +226,7 @@ export default function SocialHubPage() {
             </p>
             <div className="space-y-2">
               {scheduledItems.map((item) => (
-                <div key={item._id} className="p-3 rounded-xl bg-orange-50 border border-orange-200">
+                <div key={item.id} className="p-3 rounded-xl bg-orange-50 border border-orange-200">
                   <div className="flex items-center gap-2 mb-1.5">
                     <PlatformIcon platform={item.platform} size="sm" />
                     <span className="text-xs text-orange-600 font-medium">Scheduled</span>
@@ -223,6 +234,7 @@ export default function SocialHubPage() {
                   <p className="text-sm text-gray-900 line-clamp-2">{item.title}</p>
                   <div className="flex items-center gap-2 mt-2">
                     <motion.button
+                      onClick={() => handlePostNow(item.id)}
                       className="text-xs px-2.5 py-1 rounded-lg bg-orange-500/10 text-orange-600 hover:bg-orange-500/20 transition-all"
                       whileTap={{ scale: 0.95 }}
                     >
@@ -245,7 +257,7 @@ export default function SocialHubPage() {
             </p>
             <div className="space-y-2">
               {postedItems.map((item) => (
-                <div key={item._id} className="p-3 rounded-xl bg-emerald-50 border border-emerald-200">
+                <div key={item.id} className="p-3 rounded-xl bg-emerald-50 border border-emerald-200">
                   <div className="flex items-center gap-2 mb-1.5">
                     <PlatformIcon platform={item.platform} size="sm" />
                     <span className="text-xs text-emerald-400 font-medium">Posted</span>
@@ -267,6 +279,103 @@ export default function SocialHubPage() {
           </div>
         </motion.div>
       </div>
+
+      {/* Add New Rule Modal */}
+      <AnimatePresence>
+        {showAddRuleModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+            onClick={() => setShowAddRuleModal(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-5">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <Zap className="w-5 h-5 text-orange-500" />
+                  Add Auto-Post Rule
+                </h3>
+                <button
+                  onClick={() => setShowAddRuleModal(false)}
+                  className="p-1 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-400" />
+                </button>
+              </div>
+
+              <div className="space-y-5">
+                <div>
+                  <label className="text-sm text-gray-600 mb-2 block">Platform</label>
+                  <div className="flex flex-wrap gap-2">
+                    {availablePlatforms.map((platform) => (
+                      <button
+                        key={platform}
+                        onClick={() => setNewRulePlatform(platform)}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm transition-all ${
+                          newRulePlatform === platform
+                            ? 'bg-orange-500/10 text-orange-600 border border-orange-500/30'
+                            : 'bg-gray-50 text-gray-500 border border-gray-200 hover:bg-gray-100'
+                        }`}
+                      >
+                        <PlatformIcon platform={platform} size="sm" />
+                        <span className="capitalize">
+                          {platform === 'twitter' ? 'X' : platform}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-sm text-gray-600 mb-2 block">
+                    Virality Threshold: <span className="text-orange-600 font-medium">{newRuleThreshold}+</span>
+                  </label>
+                  <input
+                    type="range"
+                    min={10}
+                    max={100}
+                    value={newRuleThreshold}
+                    onChange={(e) => setNewRuleThreshold(Number(e.target.value))}
+                    className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
+                  />
+                  <div className="flex justify-between text-xs text-gray-400 mt-1">
+                    <span>10</span>
+                    <span>50</span>
+                    <span>100</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 pt-2">
+                  <motion.button
+                    onClick={handleAddRule}
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white"
+                    style={{ background: 'linear-gradient(135deg, #FF5722, #E64A19)' }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add Rule
+                  </motion.button>
+                  <motion.button
+                    onClick={() => setShowAddRuleModal(false)}
+                    className="px-4 py-2.5 rounded-xl text-sm font-medium text-gray-600 bg-gray-50 border border-gray-200 hover:bg-gray-100 transition-all"
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    Cancel
+                  </motion.button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

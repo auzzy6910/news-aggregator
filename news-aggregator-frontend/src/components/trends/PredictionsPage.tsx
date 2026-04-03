@@ -1,11 +1,10 @@
 import { motion } from 'framer-motion';
 import { Sparkles, TrendingUp, Zap, BarChart3 } from 'lucide-react';
-import { useQuery } from 'convex/react';
-import { api } from '../../../convex/_generated/api';
+import { useData } from '../../context/DataProvider';
 import PredictionCard from './PredictionCard';
 
 export default function PredictionsPage() {
-  const predictions = useQuery(api.predictions.list) ?? [];
+  const { predictions } = useData();
 
   return (
     <div className="space-y-6">

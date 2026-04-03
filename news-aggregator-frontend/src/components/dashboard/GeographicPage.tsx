@@ -1,15 +1,14 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Globe, TrendingUp, BarChart3 } from 'lucide-react';
-import { useQuery } from 'convex/react';
-import { api } from '../../../convex/_generated/api';
+import { useData } from '../../context/DataProvider';
 import GeographicFilter from './GeographicFilter';
 import NewsCard from './NewsCard';
 
 export default function GeographicPage() {
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
-  const allNews = useQuery(api.news.list, {}) ?? [];
+  const { news: allNews } = useData();
 
   const filteredNews = allNews.filter((item) => {
     if (!selectedCountry) return true;
