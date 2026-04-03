@@ -8,6 +8,7 @@ import Header from './components/layout/Header';
 import StatsBar from './components/dashboard/StatsBar';
 import NewsCard from './components/dashboard/NewsCard';
 import TrendChart from './components/dashboard/TrendChart';
+import TrendingTicker from './components/dashboard/TrendingTicker';
 import PredictionsPage from './components/trends/PredictionsPage';
 import GeographicPage from './components/dashboard/GeographicPage';
 import ContentPage from './components/content/ContentPage';
@@ -72,6 +73,9 @@ function App() {
               <div className="absolute top-2 right-8 w-20 h-20 rounded-full bg-orange-500/10 blur-xl" />
               <div className="absolute bottom-0 right-24 w-16 h-16 rounded-full bg-deep-orange-500/10 blur-xl" />
             </motion.div>
+
+            {/* Trending News Ticker */}
+            <TrendingTicker />
 
             {/* Stats */}
             <StatsBar />
