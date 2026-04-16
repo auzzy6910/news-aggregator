@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
   Settings,
@@ -10,6 +10,7 @@ import {
   RefreshCw,
   Save,
   RotateCcw,
+  Check,
 } from 'lucide-react';
 
 interface SettingToggle {
@@ -30,10 +31,28 @@ export default function SettingsPage() {
   const [refreshInterval, setRefreshInterval] = useState(5);
   const [proxyEnabled, setProxyEnabled] = useState(true);
   const [rateLimitEnabled, setRateLimitEnabled] = useState(true);
+  const [saved, setSaved] = useState(false);
 
   const toggleNotification = (id: string) => {
     setNotifications(notifications.map((n) => (n.id === id ? { ...n, enabled: !n.enabled } : n)));
   };
+
+  const handleSave = useCallback(() => {
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  }, []);
+
+  const handleReset = useCallback(() => {
+    setNotifications([
+      { id: '1', label: 'Trend Alerts', description: 'Get notified when new trends are detected', enabled: true },
+      { id: '2', label: 'Auto-Post Confirmations', description: 'Receive confirmation when content is auto-posted', enabled: true },
+      { id: '3', label: 'Velocity Spikes', description: 'Alert when engagement velocity exceeds threshold', enabled: false },
+      { id: '4', label: 'Weekly Digest', description: 'Summary of top trends and performance metrics', enabled: true },
+    ]);
+    setRefreshInterval(5);
+    setProxyEnabled(true);
+    setRateLimitEnabled(true);
+  }, []);
 
   return (
     <div className="space-y-6 max-w-4xl">
@@ -210,15 +229,28 @@ export default function SettingsPage() {
       {/* Save/Reset */}
       <div className="flex items-center gap-3 pt-2">
         <motion.button
-          className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-white"
-          style={{ background: 'linear-gradient(135deg, #FF5722, #E64A19)' }}
+          onClick={handleSave}
+          className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-white ${
+            saved ? 'bg-emerald-500' : ''
+          }`}
+          style={!saved ? { background: 'linear-gradient(135deg, #FF5722, #E64A19)' } : undefined}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
-          <Save className="w-4 h-4" />
-          Save Settings
+          {saved ? (
+            <>
+              <Check className="w-4 h-4" />
+              Saved!
+            </>
+          ) : (
+            <>
+              <Save className="w-4 h-4" />
+              Save Settings
+            </>
+          )}
         </motion.button>
         <motion.button
+          onClick={handleReset}
           className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-medium text-gray-600 bg-gray-50 border border-gray-200 hover:bg-gray-100 transition-all"
           whileTap={{ scale: 0.98 }}
         >

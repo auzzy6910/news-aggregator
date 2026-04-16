@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ExternalLink,
@@ -9,6 +9,7 @@ import {
   ChevronDown,
   Send,
   Copy,
+  Check,
   Play,
   MapPin,
   Clock,
@@ -16,6 +17,7 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { NewsItem } from '../../types';
+import { useData } from '../../context/DataProvider';
 import PlatformIcon from '../layout/PlatformIcon';
 
 interface NewsCardProps {
@@ -48,7 +50,30 @@ export default function NewsCard({ item, index }: NewsCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [showDraft, setShowDraft] = useState(false);
   const [imgError, setImgError] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const { updateNewsStatus } = useData();
   const status = statusConfig[item.status];
+
+  const handleCopy = useCallback(async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }, []);
+
+  const handlePostNow = useCallback(() => {
+    updateNewsStatus(item.id, 'posted');
+  }, [item.id, updateNewsStatus]);
 
   const trendScoreColor =
     item.trendScore >= 90
@@ -210,9 +235,12 @@ export default function NewsCard({ item, index }: NewsCardProps) {
                   className="bg-orange-50 border border-orange-200 rounded-xl p-4 mb-3"
                 >
                   <p className="text-sm text-gray-600 leading-relaxed">{item.aiDraft}</p>
-                  <button className="flex items-center gap-1.5 text-xs text-orange-600 mt-2 hover:text-orange-500">
-                    <Copy className="w-3 h-3" />
-                    Copy draft
+                  <button
+                    onClick={() => handleCopy(item.aiDraft)}
+                    className="flex items-center gap-1.5 text-xs text-orange-600 mt-2 hover:text-orange-500"
+                  >
+                    {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                    {copied ? 'Copied!' : 'Copy draft'}
                   </button>
                 </motion.div>
               )}
@@ -220,13 +248,23 @@ export default function NewsCard({ item, index }: NewsCardProps) {
               {/* Action buttons */}
               <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-200">
                 <motion.button
+                  onClick={handlePostNow}
                   className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-white transition-all"
-                  style={{ background: 'linear-gradient(135deg, #FF5722, #E64A19)' }}
+                  style={{ background: item.status === 'posted' ? '#10b981' : 'linear-gradient(135deg, #FF5722, #E64A19)' }}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  <Send className="w-3.5 h-3.5" />
-                  Post Now
+                  {item.status === 'posted' ? (
+                    <>
+                      <Check className="w-3.5 h-3.5" />
+                      Posted
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-3.5 h-3.5" />
+                      Post Now
+                    </>
+                  )}
                 </motion.button>
                 <motion.a
                   href={item.originalUrl}

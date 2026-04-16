@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   AreaChart,
@@ -9,12 +10,14 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts';
-import { useQuery } from 'convex/react';
-import { api } from '../../../convex/_generated/api';
-import { platformColors } from '../../data/mockData';
+import { useData } from '../../context/DataProvider';
+
+type TimePeriod = '24h' | '7d' | '30d';
 
 export default function TrendChart() {
-  const trendTimelineData = useQuery(api.trends.getTimeline) ?? [];
+  const { trendTimeline, platformColors } = useData();
+  const [activePeriod, setActivePeriod] = useState<TimePeriod>('24h');
+  const trendTimelineData = trendTimeline;
 
   return (
     <motion.div
@@ -29,11 +32,12 @@ export default function TrendChart() {
           <p className="text-sm text-gray-500 mt-1">Engagement rate across platforms (last 24h)</p>
         </div>
         <div className="flex gap-2">
-          {['24h', '7d', '30d'].map((period) => (
+          {(['24h', '7d', '30d'] as TimePeriod[]).map((period) => (
             <button
               key={period}
+              onClick={() => setActivePeriod(period)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                period === '24h'
+                activePeriod === period
                   ? 'bg-orange-500/10 text-orange-600 border border-orange-500/30'
                   : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
               }`}
@@ -46,7 +50,7 @@ export default function TrendChart() {
 
       <div className="h-72">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={trendTimelineData as Record<string, unknown>[]}>
+          <AreaChart data={trendTimelineData as unknown as Record<string, unknown>[]}>
             <defs>
               <linearGradient id="colorTwitter" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor={platformColors.twitter} stopOpacity={0.3} />
