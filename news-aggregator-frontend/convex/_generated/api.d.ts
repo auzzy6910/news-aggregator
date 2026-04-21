@@ -8,9 +8,9 @@
  * @module
  */
 
+import type * as autoPostRules from "../autoPostRules.js";
 import type * as automation from "../automation.js";
 import type * as automationActions from "../automationActions.js";
-import type * as autoPostRules from "../autoPostRules.js";
 import type * as crons from "../crons.js";
 import type * as locations from "../locations.js";
 import type * as news from "../news.js";
@@ -27,9 +27,9 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  autoPostRules: typeof autoPostRules;
   automation: typeof automation;
   automationActions: typeof automationActions;
-  autoPostRules: typeof autoPostRules;
   crons: typeof crons;
   locations: typeof locations;
   news: typeof news;
