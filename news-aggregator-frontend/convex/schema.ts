@@ -119,4 +119,101 @@ export default defineSchema({
     key: v.string(),
     value: v.string(),
   }).index("by_key", ["key"]),
+
+  automationJobs: defineTable({
+    newsId: v.id("news"),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("generating_video"),
+      v.literal("combining_clips"),
+      v.literal("posting"),
+      v.literal("completed"),
+      v.literal("failed"),
+      v.literal("cancelled")
+    ),
+    stage: v.union(
+      v.literal("trigger"),
+      v.literal("video"),
+      v.literal("combine"),
+      v.literal("post"),
+      v.literal("done")
+    ),
+    videoProvider: v.optional(
+      v.union(
+        v.literal("runway"),
+        v.literal("replicate"),
+        v.literal("pika"),
+        v.literal("stub")
+      )
+    ),
+    prompt: v.optional(v.string()),
+    clipUrls: v.optional(v.array(v.string())),
+    finalVideoUrl: v.optional(v.string()),
+    postPlatforms: v.optional(
+      v.array(
+        v.union(
+          v.literal("twitter"),
+          v.literal("tiktok"),
+          v.literal("instagram"),
+          v.literal("facebook"),
+          v.literal("reddit")
+        )
+      )
+    ),
+    error: v.optional(v.string()),
+    startedAt: v.number(),
+    updatedAt: v.number(),
+    completedAt: v.optional(v.number()),
+  })
+    .index("by_status", ["status"])
+    .index("by_newsId", ["newsId"])
+    .index("by_startedAt", ["startedAt"]),
+
+  videoClips: defineTable({
+    jobId: v.id("automationJobs"),
+    index: v.number(),
+    provider: v.union(
+      v.literal("runway"),
+      v.literal("replicate"),
+      v.literal("pika"),
+      v.literal("stub")
+    ),
+    externalId: v.optional(v.string()),
+    prompt: v.string(),
+    clipUrl: v.optional(v.string()),
+    durationSec: v.optional(v.number()),
+    status: v.union(
+      v.literal("queued"),
+      v.literal("ready"),
+      v.literal("failed")
+    ),
+    error: v.optional(v.string()),
+    createdAt: v.number(),
+  }).index("by_jobId", ["jobId"]),
+
+  autoPostLog: defineTable({
+    jobId: v.id("automationJobs"),
+    newsId: v.id("news"),
+    platform: v.union(
+      v.literal("twitter"),
+      v.literal("tiktok"),
+      v.literal("instagram"),
+      v.literal("facebook"),
+      v.literal("reddit")
+    ),
+    account: v.string(),
+    status: v.union(
+      v.literal("success"),
+      v.literal("failed"),
+      v.literal("skipped")
+    ),
+    externalPostId: v.optional(v.string()),
+    postUrl: v.optional(v.string()),
+    message: v.optional(v.string()),
+    error: v.optional(v.string()),
+    postedAt: v.number(),
+  })
+    .index("by_jobId", ["jobId"])
+    .index("by_newsId", ["newsId"])
+    .index("by_platform", ["platform"]),
 });

@@ -6,6 +6,7 @@ import {
   PenTool,
   Share2,
   Settings,
+  Workflow,
   Zap,
   ChevronLeft,
   ChevronRight,
@@ -24,6 +25,7 @@ const navItems = [
   { id: 'geographic', label: 'Geographic', icon: MapPin },
   { id: 'content', label: 'AI Content', icon: PenTool },
   { id: 'social', label: 'Social Hub', icon: Share2 },
+  { id: 'automation', label: 'Automation', icon: Workflow },
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
 
