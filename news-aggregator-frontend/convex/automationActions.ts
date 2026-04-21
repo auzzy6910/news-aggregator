@@ -3,8 +3,10 @@ import { internalAction } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { Doc, Id } from "./_generated/dataModel";
 import {
+  buildNarrationText,
   combineClips,
   generateClip,
+  generateNarration,
   postToPlatform,
   SocialPlatform,
   SocialPostInput,
@@ -33,6 +35,13 @@ export const runOrchestrator = internalAction({
         patch: { status: "generating_video", stage: "video" },
       });
       await ctx.runAction(internal.automationActions.generateVideoStage, {
+        jobId,
+      });
+      await ctx.runMutation(internal.automation._updateJob, {
+        id: jobId,
+        patch: { status: "narrating", stage: "narrate" },
+      });
+      await ctx.runAction(internal.automationActions.narrateStage, {
         jobId,
       });
       await ctx.runMutation(internal.automation._updateJob, {
@@ -122,7 +131,53 @@ export const generateVideoStage = internalAction({
 });
 
 /* -------------------------------------------------------------------------- */
-/* Stage 2 — combine clips                                                    */
+/* Stage 2 — narration (TTS)                                                  */
+/* -------------------------------------------------------------------------- */
+
+export const narrateStage = internalAction({
+  args: { jobId: v.id("automationJobs") },
+  handler: async (ctx, { jobId }): Promise<void> => {
+    const job: JobDoc | null = await ctx.runQuery(
+      internal.automation._getJob,
+      { id: jobId }
+    );
+    if (!job) throw new Error("Job missing");
+    const news: Doc<"news"> | null = await ctx.runQuery(
+      internal.automation._getNews,
+      { id: job.newsId }
+    );
+    if (!news) throw new Error("News missing");
+    const text = buildNarrationText({
+      title: news.title,
+      summary: news.summary,
+      aiDraft: news.aiDraft,
+    });
+    const result = await generateNarration(text);
+    let narrationUrl: string | undefined;
+    let storageId: Id<"_storage"> | undefined;
+    if (result.audioBytes) {
+      const blob = new Blob([result.audioBytes], { type: result.contentType });
+      storageId = await ctx.storage.store(blob);
+      const hosted = await ctx.storage.getUrl(storageId);
+      if (hosted) narrationUrl = hosted;
+    } else if (result.stubUrl) {
+      narrationUrl = result.stubUrl;
+    }
+    await ctx.runMutation(internal.automation._updateJob, {
+      id: jobId,
+      patch: {
+        narrationProvider: result.provider,
+        narrationText: text,
+        ...(narrationUrl ? { narrationUrl } : {}),
+        ...(storageId ? { narrationStorageId: storageId } : {}),
+        ...(result.voice ? { narrationVoice: result.voice } : {}),
+      },
+    });
+  },
+});
+
+/* -------------------------------------------------------------------------- */
+/* Stage 3 — combine clips                                                    */
 /* -------------------------------------------------------------------------- */
 
 export const combineClipsStage = internalAction({
@@ -138,7 +193,14 @@ export const combineClipsStage = internalAction({
       { id: job.newsId }
     );
     const title = news?.title ?? "untitled";
-    const combined = await combineClips(job.clipUrls ?? [], title);
+    const narrationUrl = job.narrationUrl?.startsWith("http")
+      ? job.narrationUrl
+      : undefined;
+    const combined = await combineClips(
+      job.clipUrls ?? [],
+      title,
+      narrationUrl
+    );
     await ctx.runMutation(internal.automation._updateJob, {
       id: jobId,
       patch: { finalVideoUrl: combined.finalVideoUrl },
@@ -147,7 +209,7 @@ export const combineClipsStage = internalAction({
 });
 
 /* -------------------------------------------------------------------------- */
-/* Stage 3 — auto-post to each platform                                       */
+/* Stage 4 — auto-post to each platform                                       */
 /* -------------------------------------------------------------------------- */
 
 export const autoPostStage = internalAction({
