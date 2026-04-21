@@ -12,6 +12,7 @@ import PredictionsPage from './components/trends/PredictionsPage';
 import GeographicPage from './components/dashboard/GeographicPage';
 import ContentPage from './components/content/ContentPage';
 import SocialHubPage from './components/social/SocialHubPage';
+import AutomationPage from './components/automation/AutomationPage';
 import SettingsPage from './components/dashboard/SettingsPage';
 import { Platform } from './types';
 
@@ -45,6 +46,8 @@ function App() {
         return <ContentPage />;
       case 'social':
         return <SocialHubPage />;
+      case 'automation':
+        return <AutomationPage />;
       case 'settings':
         return <SettingsPage />;
       default:
