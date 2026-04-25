@@ -17,6 +17,15 @@
  *     SHOTSTACK_API_KEY
  *     SHOTSTACK_ENV         — "stage" (default) or "v1"
  *
+ *   Narration / TTS (choose one or more; first available is used):
+ *     ELEVENLABS_API_KEY    — https://elevenlabs.io
+ *     ELEVENLABS_VOICE_ID   — optional; defaults to "Rachel" (21m00Tcm4TlvDq8ikWAM)
+ *     OPENAI_API_KEY        — https://platform.openai.com
+ *     OPENAI_TTS_VOICE      — optional; defaults to "alloy"
+ *     OPENAI_TTS_MODEL      — optional; defaults to "tts-1"
+ *     GOOGLE_TTS_API_KEY    — Google Cloud TTS API key
+ *     GOOGLE_TTS_VOICE      — optional; defaults to "en-US-Neural2-F"
+ *
  *   Social posting:
  *     TWITTER_BEARER_TOKEN
  *     TIKTOK_ACCESS_TOKEN
@@ -26,6 +35,7 @@
  */
 
 export type VideoProvider = "runway" | "replicate" | "pika" | "stub";
+export type NarrationProvider = "elevenlabs" | "openai" | "google" | "stub";
 export type SocialPlatform =
   | "twitter"
   | "tiktok"
@@ -45,6 +55,23 @@ export interface CombinedVideo {
   finalVideoUrl: string;
   durationSec: number;
   externalRenderId?: string;
+}
+
+/**
+ * Result of a TTS call. Real providers return raw audio bytes which the
+ * orchestrator uploads to Convex file storage; the stub provider returns
+ * a pre-baked fake URL.
+ */
+export interface NarrationResult {
+  provider: NarrationProvider;
+  /** Raw audio bytes, when a real provider synthesised audio. */
+  audioBytes?: ArrayBuffer;
+  contentType: string;
+  /** Stub URL when no provider was available. */
+  stubUrl?: string;
+  /** Best-effort estimate; real duration is measured when the file is combined. */
+  durationSec: number;
+  voice?: string;
 }
 
 export interface PostResult {
@@ -179,7 +206,8 @@ async function callPika(prompt: string): Promise<GeneratedClip> {
 
 export async function combineClips(
   clipUrls: string[],
-  title: string
+  title: string,
+  narrationUrl?: string
 ): Promise<CombinedVideo> {
   const key = process.env.SHOTSTACK_API_KEY;
   if (!key || clipUrls.length === 0) {
@@ -193,7 +221,7 @@ export async function combineClips(
   }
   try {
     const env = process.env.SHOTSTACK_ENV || "stage";
-    const tracks = [
+    const tracks: Array<Record<string, unknown>> = [
       {
         clips: clipUrls.map((url, i) => ({
           asset: { type: "video", src: url },
@@ -203,13 +231,28 @@ export async function combineClips(
         })),
       },
     ];
+    const totalLength = clipUrls.length * 5;
+    const timeline: Record<string, unknown> = { tracks };
+    if (narrationUrl) {
+      // Dedicated audio track so the narration mixes with clip audio rather
+      // than replacing it. Shotstack trims to the shorter of video/audio.
+      tracks.push({
+        clips: [
+          {
+            asset: { type: "audio", src: narrationUrl },
+            start: 0,
+            length: totalLength,
+          },
+        ],
+      });
+    }
     const res = await fetch(
       `https://api.shotstack.io/${env}/render`,
       {
         method: "POST",
         headers: { "x-api-key": key, "Content-Type": "application/json" },
         body: JSON.stringify({
-          timeline: { tracks },
+          timeline,
           output: { format: "mp4", resolution: "hd" },
         }),
       }
@@ -450,6 +493,172 @@ async function postReddit(i: SocialPostInput): Promise<PostResult> {
     postUrl: data.json?.data?.url,
     message: i.message,
   };
+}
+
+/* -------------------------------------------------------------------------- */
+/* Narration / TTS                                                            */
+/* -------------------------------------------------------------------------- */
+
+function pickNarrationProvider(): NarrationProvider {
+  if (process.env.ELEVENLABS_API_KEY) return "elevenlabs";
+  if (process.env.OPENAI_API_KEY) return "openai";
+  if (process.env.GOOGLE_TTS_API_KEY) return "google";
+  return "stub";
+}
+
+/**
+ * Generate narration audio for the given text. Mirrors the video-provider
+ * pattern: first available API key wins; otherwise falls back to a deterministic
+ * stub so the pipeline runs end to end.
+ *
+ * Real providers return raw audio bytes — the caller is expected to upload
+ * them to Convex file storage and pass the resulting public URL to
+ * `combineClips`.
+ */
+export async function generateNarration(
+  text: string
+): Promise<NarrationResult> {
+  const provider = pickNarrationProvider();
+  try {
+    switch (provider) {
+      case "elevenlabs":
+        return await callElevenLabs(text);
+      case "openai":
+        return await callOpenAITTS(text);
+      case "google":
+        return await callGoogleTTS(text);
+      default:
+        return stubNarration(text);
+    }
+  } catch (err) {
+    console.error(`[providers] ${provider} generateNarration failed:`, err);
+    return stubNarration(text);
+  }
+}
+
+function stubNarration(text: string): NarrationResult {
+  const slug = encodeURIComponent(text.slice(0, 40));
+  // ~150 words per minute → rough duration estimate
+  const words = text.split(/\s+/).filter(Boolean).length;
+  const durationSec = Math.max(5, Math.round((words / 150) * 60));
+  return {
+    provider: "stub",
+    contentType: "audio/mpeg",
+    stubUrl: `https://stub.trendpulse.invalid/narration/${slug}.mp3`,
+    durationSec,
+  };
+}
+
+async function callElevenLabs(text: string): Promise<NarrationResult> {
+  const key = process.env.ELEVENLABS_API_KEY!;
+  const voiceId = process.env.ELEVENLABS_VOICE_ID || "21m00Tcm4TlvDq8ikWAM";
+  const res = await fetch(
+    `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
+    {
+      method: "POST",
+      headers: {
+        "xi-api-key": key,
+        "Content-Type": "application/json",
+        Accept: "audio/mpeg",
+      },
+      body: JSON.stringify({
+        text,
+        model_id: "eleven_multilingual_v2",
+        voice_settings: { stability: 0.5, similarity_boost: 0.75 },
+      }),
+    }
+  );
+  if (!res.ok)
+    throw new Error(`ElevenLabs ${res.status}: ${await res.text()}`);
+  const audioBytes = await res.arrayBuffer();
+  const words = text.split(/\s+/).filter(Boolean).length;
+  return {
+    provider: "elevenlabs",
+    audioBytes,
+    contentType: "audio/mpeg",
+    durationSec: Math.max(5, Math.round((words / 150) * 60)),
+    voice: voiceId,
+  };
+}
+
+async function callOpenAITTS(text: string): Promise<NarrationResult> {
+  const key = process.env.OPENAI_API_KEY!;
+  const voice = process.env.OPENAI_TTS_VOICE || "alloy";
+  const model = process.env.OPENAI_TTS_MODEL || "tts-1";
+  const res = await fetch("https://api.openai.com/v1/audio/speech", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${key}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ model, input: text, voice, response_format: "mp3" }),
+  });
+  if (!res.ok) throw new Error(`OpenAI TTS ${res.status}: ${await res.text()}`);
+  const audioBytes = await res.arrayBuffer();
+  const words = text.split(/\s+/).filter(Boolean).length;
+  return {
+    provider: "openai",
+    audioBytes,
+    contentType: "audio/mpeg",
+    durationSec: Math.max(5, Math.round((words / 150) * 60)),
+    voice,
+  };
+}
+
+async function callGoogleTTS(text: string): Promise<NarrationResult> {
+  const key = process.env.GOOGLE_TTS_API_KEY!;
+  const voiceName = process.env.GOOGLE_TTS_VOICE || "en-US-Neural2-F";
+  const languageCode = voiceName.split("-").slice(0, 2).join("-");
+  const res = await fetch(
+    `https://texttospeech.googleapis.com/v1/text:synthesize?key=${encodeURIComponent(
+      key
+    )}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        input: { text },
+        voice: { languageCode, name: voiceName },
+        audioConfig: { audioEncoding: "MP3" },
+      }),
+    }
+  );
+  if (!res.ok)
+    throw new Error(`Google TTS ${res.status}: ${await res.text()}`);
+  const data = (await res.json()) as { audioContent?: string };
+  if (!data.audioContent) throw new Error("Google TTS returned no audioContent");
+  const audioBytes = base64ToArrayBuffer(data.audioContent);
+  const words = text.split(/\s+/).filter(Boolean).length;
+  return {
+    provider: "google",
+    audioBytes,
+    contentType: "audio/mpeg",
+    durationSec: Math.max(5, Math.round((words / 150) * 60)),
+    voice: voiceName,
+  };
+}
+
+function base64ToArrayBuffer(base64: string): ArrayBuffer {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes.buffer;
+}
+
+export function buildNarrationText(news: {
+  title: string;
+  summary?: string;
+  aiDraft?: string;
+}): string {
+  const base = news.aiDraft || news.summary || news.title;
+  const combined = news.summary
+    ? `${news.title}. ${base}`
+    : base;
+  // TTS providers generally charge per character; keep narrations tight.
+  const MAX = 800;
+  const text = combined.replace(/\s+/g, " ").trim();
+  if (text.length <= MAX) return text;
+  return `${text.slice(0, MAX - 1)}…`;
 }
 
 function buildMessage(i: SocialPostInput, maxLen: number): string {

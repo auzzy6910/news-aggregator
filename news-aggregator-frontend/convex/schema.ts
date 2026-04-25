@@ -125,6 +125,7 @@ export default defineSchema({
     status: v.union(
       v.literal("pending"),
       v.literal("generating_video"),
+      v.literal("narrating"),
       v.literal("combining_clips"),
       v.literal("posting"),
       v.literal("completed"),
@@ -134,6 +135,7 @@ export default defineSchema({
     stage: v.union(
       v.literal("trigger"),
       v.literal("video"),
+      v.literal("narrate"),
       v.literal("combine"),
       v.literal("post"),
       v.literal("done")
@@ -146,6 +148,18 @@ export default defineSchema({
         v.literal("stub")
       )
     ),
+    narrationProvider: v.optional(
+      v.union(
+        v.literal("elevenlabs"),
+        v.literal("openai"),
+        v.literal("google"),
+        v.literal("stub")
+      )
+    ),
+    narrationText: v.optional(v.string()),
+    narrationUrl: v.optional(v.string()),
+    narrationStorageId: v.optional(v.id("_storage")),
+    narrationVoice: v.optional(v.string()),
     prompt: v.optional(v.string()),
     clipUrls: v.optional(v.array(v.string())),
     finalVideoUrl: v.optional(v.string()),

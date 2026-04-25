@@ -14,6 +14,8 @@ import {
   ChevronUp,
   ExternalLink,
   Play,
+  Mic,
+  Volume2,
 } from 'lucide-react';
 import { useAction, useMutation, useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
@@ -24,19 +26,34 @@ import type { Platform } from '../../types';
 type JobStatus =
   | 'pending'
   | 'generating_video'
+  | 'narrating'
   | 'combining_clips'
   | 'posting'
   | 'completed'
   | 'failed'
   | 'cancelled';
 
-type JobStage = 'trigger' | 'video' | 'combine' | 'post' | 'done';
+type JobStage =
+  | 'trigger'
+  | 'video'
+  | 'narrate'
+  | 'combine'
+  | 'post'
+  | 'done';
 
-const STAGE_ORDER: JobStage[] = ['trigger', 'video', 'combine', 'post', 'done'];
+const STAGE_ORDER: JobStage[] = [
+  'trigger',
+  'video',
+  'narrate',
+  'combine',
+  'post',
+  'done',
+];
 
 const stageMeta: Record<JobStage, { label: string; icon: typeof Zap }> = {
   trigger: { label: 'Queued', icon: Zap },
   video: { label: 'Create Video', icon: Film },
+  narrate: { label: 'Narrate', icon: Mic },
   combine: { label: 'Combine Clips', icon: Combine },
   post: { label: 'Auto Post', icon: Send },
   done: { label: 'Done', icon: CheckCircle2 },
@@ -52,6 +69,12 @@ function StatusBadge({ status }: { status: JobStatus }) {
       label: 'Generating Video',
       color: '#f97316',
       bg: 'rgba(249,115,22,0.15)',
+      icon: Loader2,
+    },
+    narrating: {
+      label: 'Narrating',
+      color: '#a855f7',
+      bg: 'rgba(168,85,247,0.15)',
       icon: Loader2,
     },
     combining_clips: {
@@ -79,6 +102,7 @@ function StatusBadge({ status }: { status: JobStatus }) {
   const Icon = c.icon;
   const spinning =
     status === 'generating_video' ||
+    status === 'narrating' ||
     status === 'combining_clips' ||
     status === 'posting';
   return (
@@ -194,6 +218,42 @@ function JobDetails({ jobId }: { jobId: Id<'automationJobs'> }) {
           </div>
         )}
       </div>
+
+      {(job.narrationProvider || job.narrationUrl || job.narrationText) && (
+        <div className="rounded-lg border border-purple-200 bg-purple-50/40 p-3">
+          <div className="flex items-center gap-2 mb-1">
+            <Volume2 className="w-4 h-4 text-purple-600" />
+            <h4 className="text-xs font-semibold text-purple-700 uppercase tracking-wide">
+              Narration
+            </h4>
+            {job.narrationProvider && (
+              <span className="text-[11px] font-semibold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-full capitalize">
+                {job.narrationProvider}
+              </span>
+            )}
+            {job.narrationVoice && (
+              <span className="text-[11px] text-purple-600">
+                voice: {job.narrationVoice}
+              </span>
+            )}
+          </div>
+          {job.narrationText && (
+            <p className="text-xs text-gray-700 leading-relaxed whitespace-pre-line">
+              {job.narrationText}
+            </p>
+          )}
+          {job.narrationUrl && (
+            <a
+              href={job.narrationUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-2 inline-flex items-center gap-1 text-xs text-purple-700 hover:underline break-all"
+            >
+              <Play className="w-3 h-3" /> Open narration audio
+            </a>
+          )}
+        </div>
+      )}
 
       {job.finalVideoUrl && (
         <div>
